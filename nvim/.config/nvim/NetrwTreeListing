@@ -1,0 +1,25 @@
+../
+nvim/
+| after/
+| lua/
+| | current-theme.lua
+| | taher/
+| | | core/
+| | | lazy.lua
+| | | plugins/
+| | | | lsp/
+| | | | colorscheme.lua
+| | | | gitsigns.lua
+| | | | harpoon.lua
+| | | | init.lua
+| | | | lualine.lua
+| | | | mini.lua
+| | | | nvim-cmp.lua-check
+| | | | telescope.lua
+| | | | treesitter.lua
+| | | | undotree.lua
+| | | | whichkey.lua-disabled
+| | | todo-comments.lua
+| NetrwTreeListing
+| init.lua
+| lazy-lock.json

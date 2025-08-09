@@ -1,0 +1,65 @@
+#some more ls aliases
+alias ll='ls -al'
+alias la='ls -a --no-user'
+alias l='ls -l --no-user'
+
+# custom aliases
+alias ls='eza --color=always --group-directories-first --icons=always'
+alias lt='eza --color=always --group-directories-first --icons=always --tree --git --level=2'
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+alias .....='cd ../../..'
+alias grep='grep --color=auto'
+alias egrep='egrep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias h='history'
+alias path='echo -e ${PATH//:/\\n}'
+alias now='date +"%T"'
+alias nowdate='date +"%d-%m-%Y"'
+
+#--------VIM---------------------
+alias vi='vim'
+alias svim='sudo vim'
+alias vim='nvim'
+
+#-=-------Bash Commands----------
+alias wget='wget -c'
+
+alias ping8='ping 8.8.8.8'
+alias ping4='ping 4.2.2.4'
+
+#--------Git aliases-------------
+
+alias gs='git status'
+alias gss='git stash'
+alias gpop='git stash pop'
+alias gaa='git add .'
+alias ga='git add'
+alias gl='git log --onleline'
+alias gcm='git commit -m'
+alias gc='git commit'
+alias gpush='git push'
+alias gpull='git pull'
+alias gco='git checkout'
+alias greb='git rebase'
+alias grebi='git rebase -i'
+alias gcl='git clone'
+alias glo='git log --oneline'
+alias glog="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
+
+alias gcom='git checkout main'
+alias gcoms='git checkout master'
+alias gcot="git checkout test"
+alias gcos="git checkout staging"
+alias gcod="git checkout development"
+
+#--------Docker aliases-------------
+alias dps="docker ps"
+alias dk="docker"
+alias dc="docker compose"
+
+alias cmx='cmatrix'
+
+alias nzo="$HOME/scripts/zoxide_openfiles_nvim.sh"
+
