@@ -40,6 +40,8 @@ brew analytics off
 ## 4. Brew taps
 echo "📚 Adding Homebrew taps..."
 brew tap FelixKratz/formulae
+brew tap nikitabobko/tap
+brew tap stripe/stripe-cli
 
 ## 5. Install Brew formulae
 echo "📦 Installing formulae..."
@@ -51,19 +53,24 @@ brew install coreutils
 brew install zsh-autosuggestions zsh-syntax-highlighting stow fzf bat fd zoxide ripgrep
 
 # Development utilities
-brew install lua luajit luarocks git lazygit tmux neovim starship tree-sitter cmatrix atuin
-brew install eza htop jq curl wget ansible cmake pyenv rbenv
+brew install lua luajit luarocks git lazygit tmux neovim starship tree-sitter cmatrix
+brew install eza htop jq curl wget cmake pyenv rbenv
+
+# UI tools from taps
+brew install felixkratz/formulae/sketchybar
+brew install stripe/stripe-cli/stripe
 
 # Dev environment
 brew install nvm sqlite
 
 ## 6. Install Homebrew casks
 echo "🖥 Installing casks..."
-brew install --cask raycast karabiner-elements nikitabobko/tap/aerospace keycastr betterdisplay linearmouse
+brew install --cask raycast karabiner-elements keycastr betterdisplay linearmouse
+brew install --cask nikitabobko/tap/aerospace
 brew install --cask font-hack-nerd-font font-jetbrains-mono-nerd-font font-sf-pro
 
 # Terminal applications
-brew install --cask alacritty ghostty wezterm
+brew install --cask ghostty
 
 ## 7. macOS system settings
 echo "⚙️ Applying macOS defaults..."
@@ -89,6 +96,11 @@ echo 'export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"' >> ~/.zshr
 ## 10. Stow dotfiles
 echo "📦 Stowing dotfiles..."
 cd "$HOME/dotfiles" || exit
-stow -t ~ aerospace karabiner neovim starship wezterm tmux zsh
+stow -t ~ aerospace atuin ghostty karabiner linearmouse nvim sketchybar starship superfile tmux tmux-sessionizer vim zed zsh
+
+## 11. Install atuin
+echo "🔍 Installing atuin..."
+echo "We should install atuin after stowing dotfiles for it to work properly"
+brew install atuin
 
 echo "🎉 Setup complete!"
