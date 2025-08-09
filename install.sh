@@ -1,113 +1,94 @@
 #!/bin/bash
+#
+# macOS Dev Environment Bootstrap Script
+# ---------------------------------------
+# Installs Xcode CLI tools, oh-my-zsh, Homebrew with useful formulae and casks,
+# applies macOS defaults, and sets up dotfiles.
+#
+# TODO:
+#   - Scan Applications folder and persist list for future installations
+#   - Detect and persist list of all installed terminal applications
 
-# TODO: scan applications folder and all installed terminal applications to persist them for next bare new macOS installation
+set -e
 
-# Install xCode cli tools
+echo "🔧 Starting macOS environment setup..."
+
+## 1. Install Xcode CLI Tools
 if [[ "$(uname)" == "Darwin" ]]; then
-    echo "macOS deteted..."
-
+    echo "macOS detected..."
     if xcode-select -p &>/dev/null; then
-        echo "Xcode already installed"
+        echo "✅ Xcode CLI tools already installed"
     else
-        echo "Installing commandline tools..."
+        echo "📦 Installing Xcode CLI tools..."
         xcode-select --install
     fi
 fi
 
-# Install oh-my-zsh
+## 2. Install oh-my-zsh & plugins
+echo "🎨 Installing oh-my-zsh..."
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-## install zsh-autosuggestions
+
+# Optional plugins (uncomment if needed)
 # git clone https://github.com/zsh-users/zsh-autosuggestions.git $ZSH_CUSTOM/plugins/zsh-autosuggestions
-## install zsh-syntax-highlighting
 # git clone https://github.com/zsh-users/zsh-syntax-highlighting.git $ZSH_CUSTOM/plugins/zsh-syntax-highlighting
 
-# Homebrew
-## Install
-echo "Installing Brew..."
+## 3. Install Homebrew
+echo "🍺 Installing Homebrew..."
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 brew analytics off
 
-## Taps
-echo "Tapping Brew..."
+## 4. Brew taps
+echo "📚 Adding Homebrew taps..."
 brew tap FelixKratz/formulae
 
-## Formulae
-echo "Installing Brew Formulae..."
+## 5. Install Brew formulae
+echo "📦 Installing formulae..."
 
-## Core Utils
-echo "Install gnu coreutils"
+# Core utilities
 brew install coreutils
 
-### Must Have things
-brew install zsh-autosuggestions
-brew install zsh-syntax-highlighting
-brew install stow
-brew install fzf
-brew install bat
-brew install fd%
-brew install zoxide
-brew install lua
-brew install luajit
-brew install luarocks
-brew install prettier
-brew install make
-brew install qmk
-brew install ripgrep
+# Shell tools
+brew install zsh-autosuggestions zsh-syntax-highlighting stow fzf bat fd zoxide ripgrep
 
-### Terminal
-brew install git
-brew install lazygit
-brew install tmux
-brew install neovim
-brew install starship
-brew install tree-sitter
-brew install tree
-brew install borders
-brew install cmatrix
-brew install atuin
+# Development utilities
+brew install lua luajit luarocks git lazygit tmux neovim starship tree-sitter cmatrix atuin
+brew install eza htop jq curl wget ansible cmake pyenv rbenv
 
-### dev things
-brew install node
-brew install nvm
-brew install sqlite
+# Dev environment
+brew install nvm sqlite
 
-## Casks
-brew install --cask raycast
-brew install --cask karabiner-elements
-brew install --cask wezterm
-brew install --cask nikitabobko/tap/aerospace
-brew install --cask keycastr
-brew install --cask betterdisplay
-brew install --cask linearmouse
-brew install --cask font-hack-nerd-font
-brew install --cask font-jetbrains-mono-nerd-font
-brew install --cask font-sf-pro
+## 6. Install Homebrew casks
+echo "🖥 Installing casks..."
+brew install --cask raycast karabiner-elements nikitabobko/tap/aerospace keycastr betterdisplay linearmouse
+brew install --cask font-hack-nerd-font font-jetbrains-mono-nerd-font font-sf-pro
 
-## MacOS settings
-echo "Changing macOS defaults..."
-defaults write com.apple.Dock autohide -bool TRUE
+# Terminal applications
+brew install --cask alacritty ghostty wezterm
+
+## 7. macOS system settings
+echo "⚙️ Applying macOS defaults..."
+defaults write com.apple.Dock autohide -bool true
 defaults write NSGlobalDomain KeyRepeat -int 2
-defaults write InitialKeyRepeat -int 15
+defaults write NSGlobalDomain InitialKeyRepeat -int 15
+defaults write NSGlobalDomain NSAutomaticWindowAnimationsEnabled -bool false
+defaults write com.apple.dock "expose-group-by-app" -bool true
+defaults write com.apple.dock "mru-spaces" -bool false
+defaults write com.apple.spaces spans-displays -bool true
 
 csrutil status
-echo "Installation complete..."
 
-# Clone dotfiles repository
+## 8. Clone dotfiles repository
 if [ ! -d "$HOME/dotfiles" ]; then
-  echo "Cloning dotfiles repository..."
-  git clone https://github.com/Sin-cy/dotfiles.git $HOME/dotfiles
+    echo "📂 Cloning dotfiles repository..."
+    git clone https://github.com/mhosseintaher/dotfiles.git "$HOME/dotfiles"
 fi
 
-# export gnu coreutils to path
+## 9. Add GNU coreutils to PATH
 echo 'export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"' >> ~/.zshrc
 
-# Navigate to dotfiles directory
-cd $HOME/dotfiles || exit
-
-# Stow dotfiles packages
-echo "Stowing dotfiles..."
-#TODO: complete this please
+## 10. Stow dotfiles
+echo "📦 Stowing dotfiles..."
+cd "$HOME/dotfiles" || exit
 stow -t ~ aerospace karabiner neovim starship wezterm tmux zsh
 
-echo "Dotfiles setup complete!"
-
+echo "🎉 Setup complete!"
