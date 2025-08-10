@@ -125,6 +125,7 @@ return {
 				"less",
 				"svelte",
 			},
+			cmd = { "/Users/taher/.nvm/versions/node/v20.19.3/bin/node", vim.fn.stdpath("data") .. "/mason/packages/emmet-ls/node_modules/.bin/emmet-ls", "--stdio" },
 		})
 
 		-- emmet_language_server
@@ -142,6 +143,7 @@ return {
 				"pug",
 				"typescriptreact",
 			},
+			cmd = { "/Users/taher/.nvm/versions/node/v20.19.3/bin/node", vim.fn.stdpath("data") .. "/mason/packages/emmet-language-server/node_modules/.bin/emmet-language-server", "--stdio" },
 			init_options = {
 				includeLanguages = {},
 				excludeLanguages = {},
@@ -158,6 +160,7 @@ return {
 		-- ts_ls (replaces tsserver)
 		lspconfig.ts_ls.setup({
 			capabilities = capabilities,
+			cmd = { "/Users/taher/.nvm/versions/node/v20.19.3/bin/node", vim.fn.stdpath("data") .. "/mason/packages/typescript-language-server/node_modules/.bin/typescript-language-server", "--stdio" },
 			root_dir = function(fname)
 				local util = lspconfig.util
 				return not util.root_pattern("deno.json", "deno.jsonc")(fname)

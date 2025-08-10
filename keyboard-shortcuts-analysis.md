@@ -11,6 +11,7 @@ This document analyzes all keyboard shortcuts across your dotfiles configuration
 5. **AeroSpace** - `aerospace.toml` configuration
 6. **Karabiner** - `karabiner.json` configuration
 7. **Superfile** - `hotkeys.toml` configuration
+8. **TickTick** - Task management application shortcuts
 
 ## 🔥 Major Collision Analysis
 
@@ -23,6 +24,9 @@ This document analyzes all keyboard shortcuts across your dotfiles configuration
 | `Ctrl+H/J/K/L` | **tmux** | Pane navigation | **Neovim/Zed** | Window/Pane nav | 🟡 **Low** (Same purpose) |
 | `Alt+H/J/K/L` | **AeroSpace** | Focus windows | **AeroSpace** | Move windows (Shift) | 🟢 **None** (Related) |
 | `Ctrl+F` | **Neovim** | tmux-sessionizer | **Superfile** | Toggle footer | 🔴 **High** |
+| `Cmd+K` | **Zed** | Open command menu | **TickTick** | Open command menu | 🟡 **Low** (Same purpose) |
+| `N` | **Superfile** | New file panel | **TickTick** | Add task | 🟡 **Medium** (Different apps) |
+| `Tab+N` | **TickTick** | Add task | **System** | Tab navigation | 🟡 **Low** (Different context) |
 | `Space` | **Neovim** | Leader key | **AeroSpace** | None | 🟢 **None** |
 | `Caps Lock` | **Karabiner** | Hyper key | **System** | Caps Lock | 🟡 **Low** (Remapped) |
 
@@ -34,6 +38,10 @@ This document analyzes all keyboard shortcuts across your dotfiles configuration
 | `Alt+Tab` | **AeroSpace** | Workspace back/forth | **System** | App switcher | AeroSpace overrides |
 | `Ctrl+E` | **Zed** | Tab switcher | **Superfile** | Extract file | Different apps |
 | `J/K` | **Superfile** | List up/down | **Neovim** | Down/Up | Different contexts |
+| `M` | **Superfile** | Change panel mode | **TickTick** | Month View (Calendar) | Different apps |
+| `G` | **TickTick** | Navigation prefix | **Neovim** | Go commands | Different contexts |
+| `V` | **TickTick** | View prefix | **Neovim** | Visual mode | Different contexts |
+| `/` | **Superfile** | Search bar | **TickTick** | Go to Search | Different apps |
 
 ---
 
@@ -353,6 +361,85 @@ All above with `Alt+Shift+<key>` to move windows
 
 ---
 
+### **📋 TickTick Shortcuts**
+
+**System Actions:**
+| Shortcut | Action |
+|----------|--------|
+| `Cmd+S` | Save |
+| `.` | Sync |
+| `Esc` | Cancel |
+| `Cmd+Z` | Undo |
+| `Cmd+Shift+Z` | Redo |
+| `Cmd+P` | Print |
+| `Cmd+Shift+P` | Start/Pause Focus |
+| `Cmd+K` | Open Command Menu |
+| `?` | Shortcuts |
+
+**Task Management:**
+| Shortcut | Action |
+|----------|--------|
+| `Tab+N` / `N` | Add task |
+| `Return` | Add task below |
+| `Shift+Return` | Add subtask |
+| `Tab+E` | Expand/Collapse all subtasks |
+
+**Views:**
+| Shortcut | Action |
+|----------|--------|
+| `V then L` | List View |
+| `V then K` | Kanban View |
+| `V then T` | Timeline View |
+
+**Quick Add (in task field):**
+| Shortcut | Action |
+|----------|--------|
+| `*` | Set due date |
+| `!` | Set priority |
+| `#` | Set tag |
+| `~` / `^` | Add/move to list |
+| `@` | Assign to member |
+
+**Edit Tasks (cursor on task):**
+| Shortcut | Action |
+|----------|--------|
+| `Tab+M` | Complete tasks |
+| `Tab+P` | Pin tasks |
+| `Cmd+Del` | Delete tasks |
+| `Tab+D` | Set date |
+| `Tab+0` | Clear time |
+| `Tab+1` | Set today |
+| `Tab+2` | Set tomorrow |
+| `Tab+3` | Set next week |
+| `Alt+0/1/2/3` | Set priority |
+
+**Navigation:**
+| Shortcut | Action |
+|----------|--------|
+| `/` | Go to Search |
+| `G then S` | Go to Settings |
+| `G then A` | Go to All |
+| `G then T` | Go to Today |
+| `G then R` | Go to Tomorrow |
+| `G then N` | Go to Next 7 Days |
+| `G then M` | Go to Assigned to Me |
+| `G then I` | Go to Inbox |
+| `G then C` | Go to Completed |
+| `G then W` | Go to Won't do |
+| `G then B` | Go to Summary |
+| `G then G` | Go to Trash |
+
+**Calendar:**
+| Shortcut | Action |
+|----------|--------|
+| `D` / `1` | Day View |
+| `W` / `2` | Week View |
+| `M` / `3` | Month View |
+| `A` / `4` | Agenda |
+| `T` | Back to Today |
+
+---
+
 ## 🎯 Collision Resolution Recommendations
 
 ### **High Priority Fixes**
@@ -362,7 +449,13 @@ All above with `Alt+Shift+<key>` to move windows
    - **Superfile:** Toggle footer
    - **Solution:** Change Superfile to `Ctrl+Shift+F` or `Alt+F`
 
-2. **Modal Context Separation:**
+2. **`N` Key Conflict:**
+   - **Superfile:** New file panel
+   - **TickTick:** Add task  
+   - **Impact:** Medium - different apps but could cause confusion
+   - **Solution:** Consider `Ctrl+N` for Superfile or accept as app-specific
+
+3. **Modal Context Separation:**
    - Most conflicts are context-separated (different apps)
    - Vim/Neovim conflicts are already documented in your nvim markdown
 
@@ -383,16 +476,17 @@ All above with `Alt+Shift+<key>` to move windows
 
 ## 📊 Summary Statistics
 
-- **Total Applications Analyzed:** 7
-- **Total Shortcuts Documented:** 200+
+- **Total Applications Analyzed:** 8
+- **Total Shortcuts Documented:** 250+
 - **Critical Conflicts:** 1 (`Ctrl+F`)
-- **Potential Conflicts:** 4
-- **Well-Separated Systems:** 6/7 (85%)
+- **Medium Conflicts:** 1 (`N` key)
+- **Potential Conflicts:** 8
+- **Well-Separated Systems:** 7/8 (87%)
 
 **Conflict Severity:**
-- 🔴 **High:** 1 conflict
-- 🟡 **Medium:** 4 conflicts  
-- 🟢 **Low/None:** 195+ shortcuts
+- 🔴 **High:** 1 conflict (`Ctrl+F`)
+- 🟡 **Medium:** 5 conflicts  
+- 🟢 **Low/None:** 240+ shortcuts
 
 ## 🏆 Overall Assessment
 

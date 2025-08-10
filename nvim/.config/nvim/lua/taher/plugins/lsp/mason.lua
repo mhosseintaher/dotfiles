@@ -50,7 +50,8 @@ return {
 
 		mason_tool_installer.setup({
 			ensure_installed = {
-				"prettier", -- prettier formatter
+				"biome", -- biome formatter and linter
+				"prettier", -- prettier formatter (backup)
 				"stylua", -- lua formatter
 				"isort", -- python formatter
 				"pylint",

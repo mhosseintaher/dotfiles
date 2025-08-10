@@ -6,7 +6,7 @@ background-opacity = 0.75
 background-blur-radius = 23
 
 font-family = JetBrainsMonoNL Nerd Font 
-font-size = 22
+font-size = 23
 cursor-style = block
 cursor-style-blink = false
 cursor-invert-fg-bg = true
@@ -16,7 +16,7 @@ adjust-cell-height = 23
 macos-titlebar-style = hidden
 macos-option-as-alt = true
 mouse-hide-while-typing = true
-macos-non-native-fullscreen = true  
+macos-non-native-fullscreen = true
 
 
 confirm-close-surface = false
