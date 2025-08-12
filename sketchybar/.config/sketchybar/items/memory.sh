@@ -11,7 +11,7 @@ memory_item=(
   padding_left=0
   padding_right=0
   background.drawing=off
-  update_freq=5
+  update_freq=3
 )
 
 sketchybar --add item memory right \
