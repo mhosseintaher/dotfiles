@@ -74,6 +74,12 @@ keybind = super+b>j=goto_split:bottom
 keybind = super+b>k=goto_split:top
 keybind = super+b>l=goto_split:right
 
+# Cmd+L sends Ctrl+L to the program (tmux pane)
+keybind = cmd+l=text:\x0c
+
+# Cmd+K sends a literal "clear\n"
+keybind = cmd+k=text:clear\n
+
 #Shaders
 # custom-shader = shaders/bettercrt.glsl
 # custom-shader = shaders/retro-terminal.glsl
