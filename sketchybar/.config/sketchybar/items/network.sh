@@ -13,6 +13,7 @@ net_down_item=(
   padding_right=0
   background.drawing=off
   update_freq=2
+  click_script="$PLUGIN_DIR/network_click.sh"
 )
 
 net_up_item=(
@@ -28,6 +29,7 @@ net_up_item=(
   padding_right=0
   background.drawing=off
   update_freq=2
+  click_script="$PLUGIN_DIR/network_click.sh"
 )
 
 sketchybar --add item net_down right \

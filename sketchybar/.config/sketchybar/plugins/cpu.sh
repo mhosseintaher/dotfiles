@@ -24,6 +24,6 @@ get_cpu_usage_percent() {
 
 PERCENT=$(get_cpu_usage_percent)
 
-sketchybar --set "$NAME" label="${PERCENT}%"
+sketchybar --set "$NAME" label="$(printf "%02d" "$PERCENT")%"
 
 

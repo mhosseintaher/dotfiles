@@ -36,6 +36,6 @@ get_memory_percent() {
 
 PERCENT=$(get_memory_percent)
 
-sketchybar --set "$NAME" label="${PERCENT}%"
+sketchybar --set "$NAME" label="$(printf "%02d" "$PERCENT")%"
 
 
