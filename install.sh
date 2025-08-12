@@ -62,6 +62,7 @@ brew install stripe/stripe-cli/stripe
 
 # Dev environment
 brew install nvm sqlite
+brew install switchaudio-osx
 
 ## 6. Install Homebrew casks
 echo "🖥 Installing casks..."
