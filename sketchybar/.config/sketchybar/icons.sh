@@ -19,3 +19,11 @@ VOLUME_0=
 
 # VPN
 VPN=
+
+# CPU and Memory
+CPU=
+MEMORY=
+
+# Network
+NET_DOWN=
+NET_UP=

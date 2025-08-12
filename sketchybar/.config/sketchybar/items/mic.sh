@@ -6,10 +6,10 @@ mic=(
   click_script="$PLUGIN_DIR/mic_click.sh"
   label.drawing=off
   icon.align=center
-  icon.padding_left=8
-  icon.padding_right=8
-  padding_left=10
-  padding_right=0
+  icon.padding_left=5
+  icon.padding_right=5
+  padding_left=5
+  padding_right=5
   background.color="$PURE_BLACK"
   background.drawing=off
 )

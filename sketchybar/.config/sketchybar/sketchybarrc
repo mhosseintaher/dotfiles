@@ -40,8 +40,6 @@ sketchybar --default "${default[@]}"
 sketchybar --add event aerospace_workspace_change
 
 ##### Left Items #####
-# sketchybar --add item left_spacer left \
-#            --set left_spacer width=10 background.drawing=off icon.drawing=off label.drawing=off \
 
 source "$ITEM_DIR/space.sh"
 # adds layout background for workspaces
@@ -54,6 +52,11 @@ source "$ITEM_DIR/front_app.sh"
 source "$ITEM_DIR/clock.sh"
 
 source "$ITEM_DIR/media_block.sh"
+
+sketchybar --add item left_spacer right \
+           --set left_spacer width=5 background.drawing=off icon.drawing=off label.drawing=off \
+
+source "$ITEM_DIR/system_block.sh"
 
 sketchybar --hotload on
 

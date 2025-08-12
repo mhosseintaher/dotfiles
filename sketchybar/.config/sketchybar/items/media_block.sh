@@ -8,8 +8,8 @@ source "$ITEM_DIR/mic.sh"
 media_block=(
     background.color="$PURE_BLACK"
     background.corner_radius=6 
-    background.padding_left=0 
-    background.padding_right=0 
+    background.padding_left=5 
+    background.padding_right=5 
     blur_radius=0
 )
 

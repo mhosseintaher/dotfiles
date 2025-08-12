@@ -10,17 +10,17 @@ volume_slider=(
   slider.background.corner_radius=0
   slider.background.color=$BACKGROUND_2
   background.color="$PURE_BLACK"
-  padding_left=10
-  padding_right=10
+  padding_left=5
+  padding_right=5
   slider.knob=
-  icon.padding_left=8
-  icon.padding_right=8 
+  icon.padding_left=5
+  icon.padding_right=5 
   slider.knob.drawing=on
 )
 
 volume_icon=(
   click_script="$PLUGIN_DIR/volume_click.sh"
-  padding_left=5
+  padding_left=0
   padding_right=0
   icon.width=0
   icon.align=center
