@@ -11,12 +11,8 @@ Before resetting your Mac, **manually back up** the following directories from `
 
 ```
 ~/.ssh
-~/.tnet
-~/.vscode
-~/.cursor
 ~/.config/raycast
 ~/Fonts
-~/pcsx2-games
 ```
 
 Copy them back to `$HOME` after reinstalling macOS.
