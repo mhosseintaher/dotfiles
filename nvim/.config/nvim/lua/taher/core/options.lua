@@ -24,7 +24,7 @@ vim.opt.undodir = os.getenv("HOME") .. "/.vim/undodir"
 vim.opt.undofile = true
 
 vim.opt.hlsearch = true
-vim.opt.incsearch = true
+vim.opt.incsearch = false
 
 vim.opt.inccommand = "split"
 
@@ -38,9 +38,9 @@ vim.opt.scrolloff = 8
 vim.opt.signcolumn = "yes"
 
 -- Enable folding ( setup in nvim-ufo )
-vim.o.foldenable = true     -- Enable folding by default
+vim.o.foldenable = true -- Enable folding by default
 vim.o.foldmethod = "manual" -- Default fold method (change as needed)
-vim.o.foldlevel = 99        -- Open most folds by default
+vim.o.foldlevel = 99 -- Open most folds by default
 vim.o.foldcolumn = "0"
 
 -- backspace
@@ -59,7 +59,7 @@ vim.opt.colorcolumn = "120"
 -- Sync clipboard between OS and Neovim.
 -- Schedule the setting after `UiEnter` because it can increase startup-time.
 vim.schedule(function()
-  vim.o.clipboard = 'unnamedplus'
+	vim.o.clipboard = "unnamedplus"
 end)
 
 -- for easy mouse resizing, just incase
@@ -70,20 +70,10 @@ vim.g.editorconfig = true
 
 vim.o.showmode = false
 
-vim.o.list = true
-vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
+vim.o.list = false
+vim.opt.listchars = { tab = "» ", trail = "·", nbsp = "␣" }
 
 -- Show which line your cursor is on
 vim.o.cursorline = true
 
 vim.o.confirm = true
-
-
-
-
-
-
-
-
-
-
