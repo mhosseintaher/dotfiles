@@ -64,4 +64,6 @@ export FZF_TMUX_OPTS=" -p90%,70% "
 
 export PATH="/opt/homebrew/opt/trash/bin:$PATH"
 
+export PATH="$PATH:$(go env GOPATH)/bin"
+
 fpath=(/Users/taher/.docker/completions $fpath)
