@@ -26,7 +26,7 @@ return {
 		end)
 
 		--Harpoon marked files
-		vim.keymap.set("n", "<C-h>", function()
+		vim.keymap.set("n", "<C-y>", function()
 			harpoon:list():select(1)
 		end)
 		vim.keymap.set("n", "<C-t>", function()
