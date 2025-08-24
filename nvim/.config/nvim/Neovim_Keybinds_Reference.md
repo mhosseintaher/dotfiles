@@ -6,34 +6,6 @@ This document contains all keybinds configured in your Neovim setup, organized b
 - **Leader**: `<Space>` (Space key)
 - **Local Leader**: `<Space>` (Space key)
 
-## 🚨 **DUPLICATE/CONFLICTING KEYBINDS** 🚨
-
-| Keybind | Plugin/File | Action | Conflict |
-|---------|-------------|--------|----------|
-| `<leader>gs` | vim-fugitive | Git status | ⚠️ **CONFLICT** |
-| `<leader>gs` | gitsigns | Stage hunk | ⚠️ **CONFLICT** |
-| `<C-h>` | core/keymaps | Focus left window | ⚠️ **CONFLICT** |
-| `<C-h>` | harpoon | Select harpoon file 1 | ⚠️ **CONFLICT** |
-| `<C-h>` | lspconfig (insert) | LSP signature help | ⚠️ **CONFLICT** |
-| `<C-k>` | core/keymaps | Focus upper window | ⚠️ **CONFLICT** |
-| `<C-k>` | nvim-cmp (insert) | Previous completion item | ⚠️ **CONFLICT** |
-| `<C-k>` | telescope (insert) | Move selection previous | ⚠️ **CONFLICT** |
-| `<C-j>` | core/keymaps | Focus lower window | ⚠️ **CONFLICT** |
-| `<C-j>` | nvim-cmp (insert) | Next completion item | ⚠️ **CONFLICT** |
-| `<C-j>` | telescope (insert) | Move selection next | ⚠️ **CONFLICT** |
-| `<C-f>` | core/keymaps | TMux sessionizer | ⚠️ **CONFLICT** |
-| `<C-f>` | nvim-cmp (insert) | Scroll docs down | ⚠️ **CONFLICT** |
-| `<C-d>` | core/keymaps | Move down with cursor centered | ⚠️ **CONFLICT** |
-| `<C-d>` | nvim-cmp (insert) | Close completion docs | ⚠️ **CONFLICT** |
-| `<C-e>` | harpoon | Toggle harpoon menu | ⚠️ **CONFLICT** |
-| `<C-e>` | nvim-cmp (insert) | Abort completion | ⚠️ **CONFLICT** |
-| `<leader>d` | core/keymaps | Delete without yanking | ⚠️ **CONFLICT** |
-| `<leader>d` | lspconfig | Show line diagnostics | ⚠️ **CONFLICT** |
-| `<leader>p` | core/keymaps (visual) | Paste without yanking | ⚠️ **CONFLICT** |
-| `<leader>p` | vim-fugitive (fugitive buffer) | Git pull --rebase | ⚠️ **CONFLICT** |
-
----
-
 ## Normal Mode Keybinds
 
 | Keybind | Plugin/File | Action | Description |
