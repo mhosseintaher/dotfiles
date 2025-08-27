@@ -17,6 +17,9 @@ VOLUME_33=
 VOLUME_10=
 VOLUME_0=
 
+# Clock
+CLOCK=
+
 # VPN
 VPN=
 
