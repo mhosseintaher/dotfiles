@@ -7,7 +7,7 @@ clock=(
     script="$PLUGIN_DIR/clock.sh"
     click_script="$PLUGIN_DIR/clock_click.sh"
     popup.align=right
-    popup.height=35
+    popup.height=50
 )
 
 sketchybar --add item clock right \

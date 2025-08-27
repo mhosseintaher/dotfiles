@@ -26,19 +26,25 @@ toggle_timezones() {
     for tz_info in "${TIMEZONES[@]}"; do
         IFS=':' read -r tz_name tz_display <<< "$tz_info"
         
+        # Get current time for this timezone
+        CURRENT_TIME=$(TZ="$tz_name" date '+%H:%M')
+        
         COLOR=$GREY
         if [ "$tz_name" = "$SELECTED_TZ" ]; then
             COLOR=$WHITE
         fi
         
         args+=(--add item timezone.item.$COUNTER popup."$NAME"
-            --set timezone.item.$COUNTER label="$tz_display"
+            --set timezone.item.$COUNTER label="$tz_display - $CURRENT_TIME"
             label.color="$COLOR"
             background.color="$PURE_BLACK"
             background.drawing=on
             background.corner_radius=5
-            padding_left=5
-            padding_right=5
+            padding_left=8
+            padding_right=8
+            padding_top=4
+            padding_bottom=4
+            margin=2
             click_script="defaults write com.sketchybar.timezone timezone '$tz_name' && sketchybar --set /timezone.item\.*/ label.color=$GREY --set timezone.item.$COUNTER label.color=$WHITE --set $NAME popup.drawing=off --trigger timezone_changed")
         COUNTER=$((COUNTER + 1))
     done
