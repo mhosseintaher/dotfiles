@@ -68,7 +68,7 @@ outer.bottom =     30
 # outer.top =        30
 outer.right =      30
 # --------------------- Asus default = 55
-outer.top = [{ monitor."PA278QV" = 55 }, { monitor."Built-in Retina Display" = 25 }, 45]
+outer.top = [{ monitor."PA278QV" = 55 }, { monitor."2" = 55 }, { monitor."Built-in Retina Display" = 25 }, 55]
 
 
 # 'main' binding mode declaration

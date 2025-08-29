@@ -29,4 +29,7 @@ MEMORY=
 
 # Network
 NET_DOWN=
-NET_UP=
+NET_UP=
+
+# Language
+LANGUAGE=󰌌

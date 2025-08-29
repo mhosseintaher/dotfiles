@@ -4,6 +4,7 @@ source "$ITEM_DIR/battery.sh"
 source "$ITEM_DIR/wifi.sh"
 source "$ITEM_DIR/volume.sh"
 source "$ITEM_DIR/mic.sh"
+source "$ITEM_DIR/language.sh"
 
 media_block=(
     background.color="$PURE_BLACK"
@@ -13,5 +14,5 @@ media_block=(
     blur_radius=0
 )
 
-sketchybar --add bracket media_block battery wifi volume mic wireguard \
+sketchybar --add bracket media_block battery wifi volume mic language \
            --set media_block "${media_block[@]}" \

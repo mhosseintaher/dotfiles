@@ -1,26 +1,26 @@
 {
+  "$schema" : "https:\/\/schema.linearmouse.app\/0.10.0",
   "schemes" : [
     {
       "if" : {
         "device" : {
-          "vendorID" : "0x46d",
-          "productID" : "0xb034",
-          "productName" : "MX Master 3S",
           "serialNumber" : "28C2992D",
+          "productID" : "0xb034",
+          "vendorID" : "0x46d",
+          "productName" : "MX Master 3S",
           "category" : "mouse"
         }
       },
       "scrolling" : {
         "distance" : "auto",
-        "acceleration" : 1,
-        "speed" : 0
+        "speed" : 0,
+        "acceleration" : 1
       },
       "pointer" : {
-        "speed" : 0.0689655172413792768,
         "disableAcceleration" : false,
-        "acceleration" : 3
+        "speed" : 0.02,
+        "acceleration" : 2
       }
     }
-  ],
-  "$schema" : "https:\/\/schema.linearmouse.app\/0.10.0"
+  ]
 }

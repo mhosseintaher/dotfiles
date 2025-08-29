@@ -39,6 +39,7 @@ default=(
 sketchybar --default "${default[@]}"
 sketchybar --add event aerospace_workspace_change
 sketchybar --add event timezone_changed
+sketchybar --add event input_source_changed
 
 ##### Left Items #####
 
@@ -60,6 +61,12 @@ sketchybar --add item left_spacer right \
 source "$ITEM_DIR/system_block.sh"
 
 sketchybar --hotload on
+
+##### Start background monitors #####
+# Kill any existing language monitor to prevent duplicates
+pkill -f "language_monitor.sh" 2>/dev/null
+# Start language monitor in background
+"$PLUGIN_DIR/language_monitor.sh" &
 
 ##### Force all scripts to run the first time (never do this in a script) #####
 sketchybar --update
