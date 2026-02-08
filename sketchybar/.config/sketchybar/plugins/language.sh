@@ -64,6 +64,9 @@ else
         *"Arabic"*|*"العربية"*)
             CURRENT_LANGUAGE="AR"
             ;;
+        *"Persian"*|*"Farsi"*|*"فارسی"*)
+            CURRENT_LANGUAGE="FA"
+            ;;
         *)
             # Take first 2-3 characters if it's a longer name
             CURRENT_LANGUAGE=$(echo "$CURRENT_LANGUAGE" | cut -c1-3 | tr '[:lower:]' '[:upper:]')
@@ -79,7 +82,7 @@ case "$CURRENT_LANGUAGE" in
     "ES")
         COLOR="$ORANGE"
         ;;
-    "FR")
+    "FA")
         COLOR="$MAGENTA"
         ;;
     *)

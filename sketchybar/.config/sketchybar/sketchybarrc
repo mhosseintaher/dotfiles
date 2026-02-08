@@ -45,7 +45,7 @@ sketchybar --add event input_source_changed
 
 source "$ITEM_DIR/space.sh"
 # adds layout background for workspaces
-sketchybar --add bracket workspaces space.1 space.2 space.3 space.B space.C space.D space.E space.F space.M space.N space.P space.I space.T space.X \
+sketchybar --add bracket workspaces space.1 space.2 space.3 space.B space.C space.D space.E space.F space.M space.N space.P space.I space.T space.V space.X \
            --set workspaces background.color="$PURE_BLACK" \
 
 source "$ITEM_DIR/front_app.sh"

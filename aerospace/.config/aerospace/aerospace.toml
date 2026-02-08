@@ -132,6 +132,7 @@ alt-n = 'workspace N' # for notes (obsidian)
 alt-p = 'workspace P' # Calander
 alt-i = 'workspace I' # CLickUp
 alt-t = 'workspace T' # for terminal shell
+alt-v = 'workspace V' # for VPN (Hiddify, WireGuard, Astrill)
 alt-x = 'workspace X' # for vscode
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#move-node-to-workspace
@@ -154,6 +155,7 @@ alt-shift-n = ['move-node-to-workspace N', 'workspace N']
 alt-shift-p = ['move-node-to-workspace P', 'workspace P']
 alt-shift-i = ['move-node-to-workspace I', 'workspace I']
 alt-shift-t = ['move-node-to-workspace T', 'workspace T']
+alt-shift-v = ['move-node-to-workspace V', 'workspace V']
 alt-shift-x = ['move-node-to-workspace X', 'workspace X']
 
 
@@ -275,3 +277,20 @@ run = "move-node-to-workspace N"
 [[on-window-detected]]
 if.app-id = 'com.apple.iCal'
 run = "move-node-to-workspace P"
+
+# VPN Apps - Workspace V
+[[on-window-detected]]
+if.app-id = 'apple.hiddify.com'
+run = "move-node-to-workspace V"
+
+[[on-window-detected]]
+if.app-id = 'com.wireguard.macos'
+run = "move-node-to-workspace V"
+
+[[on-window-detected]]
+if.app-id = 'com.astrill.astrill'
+run = "move-node-to-workspace V"
+
+[[on-window-detected]]
+if.app-id = 'su.ffg.happ'
+run = "move-node-to-workspace V"

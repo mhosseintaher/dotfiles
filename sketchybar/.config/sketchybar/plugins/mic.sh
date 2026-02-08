@@ -7,7 +7,7 @@
 source "$CONFIG_DIR/colors.sh"
 
 # Attempt to get the current input device name
-MIC_NAME=$(SwitchAudioSource -t input -c)
+MIC_NAME=$(SwitchAudioSource -t input -c 2>/dev/null)
 # I just want the first word, in case it's too long
 MIC_NAME=$(echo $MIC_NAME | awk '{print $1}')
 
@@ -17,7 +17,14 @@ MIC_NAME=$(echo $MIC_NAME | awk '{print $1}')
 VALIDATED_MIC_NAME=$(echo "$MIC_NAME" | iconv -f UTF-8 -t UTF-8//IGNORE)
 
 # Get the current microphone volume
-MIC_VOLUME=$(osascript -e 'input volume of (get volume settings)')
+# Note: polling less frequently (update_freq=10) to avoid interfering with
+# apps like Google Meet that need to acquire the mic cleanly.
+MIC_VOLUME=$(osascript -e 'input volume of (get volume settings)' 2>/dev/null)
+
+# If we couldn't get volume, default to showing active state
+if [[ -z "$MIC_VOLUME" ]]; then
+  MIC_VOLUME=100
+fi
 
 # Check if MIC_NAME is not meaningful
 # Remove MIC_NAME from label
