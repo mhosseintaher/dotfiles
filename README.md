@@ -16,6 +16,17 @@ What you’ll get after setup:
 Note: These configs are tailored for my setup and may need adjustments for yours.
 
 ---
+## ⚡ Power Management
+
+Sleep timers, hibernate modes, battery charge limit (AlDente), and USB sleep behaviour are documented and scripted in [`power-management/`](./power-management/README.md).
+
+Run on a fresh Mac:
+
+```bash
+~/dotfiles/power-management/setup.sh
+```
+
+---
 
 ## 📂 Additional Directories to Back Up
 
