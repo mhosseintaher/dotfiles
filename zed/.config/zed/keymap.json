@@ -8,7 +8,7 @@
 [
 	// Put keybinds here to work globally outside & inside of editor
 	{
-		"context": "EmptyPane || SharedScreen || vim_operator == none && !VimWaiting && vim_mode != insert ",
+		"context": "EmptyPane || SharedScreen || vim_operator == none && vim_mode != insert ",
 		"bindings": {
 			"ctrl-e h": "tab_switcher::Toggle", // opens up a list for quickly switching file
 			"space p f": "file_finder::Toggle",
@@ -18,7 +18,7 @@
 		}
 	},
 	{
-		"context": "Editor && VimControl && !VimWaiting && !menu",
+		"context": "Editor && VimControl && !menu",
 		"bindings": {
 			"ctrl-w z": "workspace::ToggleZoom",
 			// "space s t": "tab_switcher::Toggle",
@@ -31,46 +31,31 @@
 	},
 	// put key-bindings here if you want them to work ONLY in INSERT mode
 	{
-		"context": "Editor && vim_mode == insert && !VimWaiting && !menu ",
+		"context": "Editor && vim_mode == insert && !menu ",
 		"bindings": {
 			"ctrl-h": "editor::ShowSignatureHelp"
 		}
 	},
 	// put key-bindings here if you want them to work ONLY in NORMAL mode
 	{
-		"context": "Editor && vim_mode == normal && !VimWaiting && !menu ",
+		"context": "Editor && vim_mode == normal && !menu ",
 		"bindings": {
 			"ctrl-^": "pane::AlternateFile", // quickly move between two panes defaults to ctrl 6
 			"ctrl-w f": "workspace::NewCenterTerminal",
 			"shift-k": "editor::Hover", // Hovering
-			"ctrl-c": [
-				"editor::Cancel",
-				"menu::Cancel"
-			],
+			"ctrl-c": "editor::Cancel",
 			// Ctrl hjkl to move between panes
-			"ctrl-h": [
-				"workspace::ActivatePaneInDirection",
-				"Left"
-			],
-			"ctrl-l": [
-				"workspace::ActivatePaneInDirection",
-				"Right"
-			],
-			"ctrl-k": [
-				"workspace::ActivatePaneInDirection",
-				"Up"
-			],
-			"ctrl-j": [
-				"workspace::ActivatePaneInDirection",
-				"Down"
-			],
+			"ctrl-h": "workspace::ActivatePaneLeft",
+			"ctrl-l": "workspace::ActivatePaneRight",
+			"ctrl-k": "workspace::ActivatePaneUp",
+			"ctrl-j": "workspace::ActivatePaneDown",
 			// "j": "pane::ActivateNextItem",
 			// "k": "pane::ActivatePrevItem",
 		}
 	},
 	// put key-bindings here if you want them to work ONLY in VISUAL mode
 	{
-		"context": "Editor && vim_mode == visual && !VimWaiting && !menu ",
+		"context": "Editor && vim_mode == visual && !menu ",
 		"bindings": {
 			"=": "editor::Format",
 			// Move Lines Up/Down
@@ -80,10 +65,10 @@
 	},
 	// put key-bindings here if you want them to work in NORMAL & VISUAL mode
 	{
-		"context": "Editor && (vim_mode == normal || vim_mode == visual) && !VimWaiting && !menu",
+		"context": "Editor && (vim_mode == normal || vim_mode == visual) && !menu",
 		"bindings": {
 			"g ]": "editor::GoToDiagnostic",
-			"g [": "editor::GoToPrevDiagnostic",
+			"g [": "editor::GoToPreviousDiagnostic",
 			"g r": "editor::FindAllReferences", // find references in directory on word under cursor
 			"space v c a": "editor::ToggleCodeActions",
 			"space m p": "editor::Format",
@@ -96,7 +81,7 @@
 			// "g d": "editor::GoToTypeDefinition", // ALREADY BY DEFAULT
 			"space r n": "editor::Rename",
 			// Git
-			"space g d": "editor::ToggleHunkDiff",
+			"space g d": "editor::ToggleSelectedDiffHunks",
 			// "space g u": "editor::RevertSelectedHunks",
 			// Toggle inlay hints
 			"space t i": "editor::ToggleInlayHints",
@@ -121,7 +106,7 @@
 				"escape"
 			],
 			"ctrl-j": "menu::SelectNext", // Remap Ctrl-j to move down in selection only menus
-			"ctrl-k": "menu::SelectPrev", // Remap Ctrl-k to move up in selection only menus
+			"ctrl-k": "menu::SelectPrevious", // Remap Ctrl-k to move up in selection only menus
 		}
 	},
 	{
@@ -152,44 +137,20 @@
 			"q": "workspace::ToggleRightDock", // use q to close out of file explorer when inside explorer
 			// Close project panel as project file panel on the right
 			// ctrl hjkl to move back into editor from file explorer
-			"ctrl-h": [
-				"workspace::ActivatePaneInDirection",
-				"Left"
-			],
-			"ctrl-l": [
-				"workspace::ActivatePaneInDirection",
-				"Right"
-			],
-			"ctrl-k": [
-				"workspace::ActivatePaneInDirection",
-				"Up"
-			],
-			"ctrl-j": [
-				"workspace::ActivatePaneInDirection",
-				"Down"
-			]
+			"ctrl-h": "workspace::ActivatePaneLeft",
+			"ctrl-l": "workspace::ActivatePaneRight",
+			"ctrl-k": "workspace::ActivatePaneUp",
+			"ctrl-j": "workspace::ActivatePaneDown"
 		}
 	},
 	// Toggle Terminal
 	{
 		"context": "Terminal",
 		"bindings": {
-			"ctrl-h": [
-				"workspace::ActivatePaneInDirection",
-				"Left"
-			],
-			"ctrl-l": [
-				"workspace::ActivatePaneInDirection",
-				"Right"
-			],
-			"ctrl-k": [
-				"workspace::ActivatePaneInDirection",
-				"Up"
-			],
-			"ctrl-j": [
-				"workspace::ActivatePaneInDirection",
-				"Down"
-			],
+			"ctrl-h": "workspace::ActivatePaneLeft",
+			"ctrl-l": "workspace::ActivatePaneRight",
+			"ctrl-k": "workspace::ActivatePaneUp",
+			"ctrl-j": "workspace::ActivatePaneDown",
 			"ctrl-w f": "workspace::NewCenterTerminal"
 		},
 	},

@@ -19,7 +19,6 @@ mouse-hide-while-typing = true
 macos-non-native-fullscreen = true
 
 
-confirm-close-surface = false
 window-decoration = true
 window-padding-x = 10
 window-padding-y = 10
@@ -31,7 +30,7 @@ maximize = true
 #window-width = 165
 
 auto-update = check
-auto-update-channel = tip
+auto-update-channel = stable
 
 # extras
 shell-integration-features = no-cursor 
@@ -74,11 +73,13 @@ keybind = super+b>j=goto_split:bottom
 keybind = super+b>k=goto_split:top
 keybind = super+b>l=goto_split:right
 
-# Cmd+L sends Ctrl+L to the program (tmux pane)
+# Cmd+L sends Ctrl+L: clears a plain shell; inside tmux, C-l is select-pane -R
+# (vim panes get C-l). Inside tmux use Opt+L to clear the shell instead.
 keybind = cmd+l=text:\x0c
 
-# Cmd+K sends a literal "clear\n"
-keybind = cmd+k=text:clear\n
+# Cmd+K clears screen and scrollback outside tmux (built-in, injects no input);
+# it does nothing visible inside tmux. There, Opt+K clears screen + history.
+keybind = cmd+k=clear_screen
 
 #Shaders
 # custom-shader = shaders/bettercrt.glsl

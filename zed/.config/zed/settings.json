@@ -7,8 +7,12 @@
 // custom settings, run `zed: open default settings` from the
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
+	"telemetry": {
+		"diagnostics": false,
+		"metrics": false
+	},
 	"features": {
-		"inline_completion_provider": "none"
+		"edit_prediction_provider": "none"
 	},
 	"vim_mode": true,
 	"ui_font_size": 18,
@@ -27,7 +31,7 @@
 	"relative_line_numbers": true,
 	"ensure_final_newline_on_save": true,
 	"remove_trailing_whitespace_on_save": true,
-	"show_inline_completions": false,
+	"show_edit_predictions": false,
 	"file_finder": {
 		"modal_width": "medium"
 	},
@@ -64,22 +68,10 @@
 	"notification_panel": {
 		"dock": "left"
 	},
-	"chat_panel": {
-		"dock": "left"
-	},
 	// Themes
 	"theme": "Rosé Pine Moon",
-	"experimental.theme_overrides": {
-		// "editor.background": "#121213",
-		// "background.appearance": "blurred",
-		// "editor.line_number": "#fff",
-		// "editor.active_line_number": "#eebebe",
-		// "editor.gutter.background": "#121213",
-		// "tab_bar.background": "#000",
-		// "terminal.background": "#121213",
-		// "toolbar.background": "#121213",
-		// "tab.active_background": "#121213",
-		// "tab.inactive_background": "#121213",
+	"auto_install_extensions": {
+		"rose-pine-theme": true
 	},
 	// LSP Config
 	"lsp": {
@@ -93,7 +85,7 @@
 				]
 			}
 		},
-		"gppls": {},
+		"gopls": {},
 		"rust-analyzer": {},
 	},
 	"languages": {
@@ -108,6 +100,8 @@
 			}
 		},
 		"TypeScript": {
+			"tab_size": 4,
+			"hard_tabs": true,
 			"format_on_save": "off",
 			// Refer https://github.com/jellydn/ts-inlay-hints for how to setup for Neovim and VSCode
 			"inlay_hints": {
@@ -118,11 +112,7 @@
 			}
 		},
 		"Python": {
-			"format_on_save": {
-				"language_server": {
-					"name": "ruff"
-				}
-			},
+			"format_on_save": "on",
 			"formatter": {
 				"language_server": {
 					"name": "ruff"
@@ -132,16 +122,6 @@
 				"pyright",
 				"ruff"
 			]
-		}
-	},
-	"language_overrides": {
-		"TypeScript": {
-			"tab_size": 4,
-			"hard_tabs": true,
-			"format_on_save": "off",
-			"inlay_hints": {
-				"enabled": false
-			}
 		},
 		"JSON": {
 			"tab_size": 4,
