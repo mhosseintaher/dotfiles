@@ -15,13 +15,16 @@ TIMEZONES=(
 
 # Get current system timezone
 CURRENT_TZ=$(readlink /etc/localtime | sed 's|.*/zoneinfo/||')
+TZ_FILE="$HOME/.cache/sketchybar/timezone"
 
 toggle_timezones() {
     args=(--remove '/timezone.item\.*/' --set "$NAME" popup.drawing=toggle)
     COUNTER=0
     
-    # Get currently selected timezone
-    SELECTED_TZ=$(defaults read com.sketchybar.timezone timezone 2>/dev/null || echo "$CURRENT_TZ")
+    # Get currently selected timezone (no file = system timezone)
+    SELECTED_TZ=""
+    [ -r "$TZ_FILE" ] && read -r SELECTED_TZ < "$TZ_FILE"
+    : "${SELECTED_TZ:=$CURRENT_TZ}"
     
     for tz_info in "${TIMEZONES[@]}"; do
         IFS=':' read -r tz_name tz_display <<< "$tz_info"
@@ -34,6 +37,13 @@ toggle_timezones() {
             COLOR=$WHITE
         fi
         
+        # Picking the system timezone removes the file (clock.sh then shows the clock icon)
+        if [ "$tz_name" = "$CURRENT_TZ" ]; then
+            SAVE_TZ="rm -f '$TZ_FILE'"
+        else
+            SAVE_TZ="mkdir -p '${TZ_FILE%/*}' && echo '$tz_name' > '$TZ_FILE'"
+        fi
+
         args+=(--add item timezone.item.$COUNTER popup."$NAME"
             --set timezone.item.$COUNTER label="$tz_display - $CURRENT_TIME"
             label.color="$COLOR"
@@ -45,7 +55,7 @@ toggle_timezones() {
             padding_top=4
             padding_bottom=4
             margin=2
-            click_script="defaults write com.sketchybar.timezone timezone '$tz_name' && sketchybar --set /timezone.item\.*/ label.color=$GREY --set timezone.item.$COUNTER label.color=$WHITE --set $NAME popup.drawing=off --trigger timezone_changed")
+            click_script="$SAVE_TZ; sketchybar --set /timezone.item\.*/ label.color=$GREY --set timezone.item.$COUNTER label.color=$WHITE --set $NAME popup.drawing=off --trigger timezone_changed")
         COUNTER=$((COUNTER + 1))
     done
     

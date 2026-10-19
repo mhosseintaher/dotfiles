@@ -12,8 +12,11 @@ wifi=(
     padding_right=0
     background.drawing=off
     icon.color=0xff58d1fc
-    update_freq=5
+    update_freq=120
+    updates=when_shown
 )
 
+# Event-driven: wifi_change and system_woke; the 120s poll is only a safety net.
 sketchybar --add item wifi right \
-           --set wifi "${wifi[@]}"
+           --set wifi "${wifi[@]}" \
+           --subscribe wifi wifi_change system_woke

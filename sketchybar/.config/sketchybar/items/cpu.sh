@@ -1,8 +1,11 @@
 #!/bin/bash
 
+# The label is pushed by helpers/sb_stats (started in sketchybarrc), so this
+# item has no polling script. The script only drives the click popup.
 cpu_item=(
-  script="$PLUGIN_DIR/cpu.sh"
+  script="$PLUGIN_DIR/top_popup.sh"
   icon=$CPU
+  label="--%"
   label.drawing=on
   background.color="$PURE_BLACK"
   icon.align=center
@@ -11,11 +14,17 @@ cpu_item=(
   padding_left=0
   padding_right=0
   background.drawing=off
-  update_freq=2
+  update_freq=0
+  updates=when_shown
+  popup.align=right
+  popup.background.color="$PURE_BLACK"
+  popup.background.corner_radius=6
+  popup.background.border_color="$BACKGROUND_2"
+  popup.background.border_width=1
 )
 
 sketchybar --add item cpu right \
            --set cpu "${cpu_item[@]}" \
-           --subscribe cpu system_woke
+           --subscribe cpu mouse.clicked mouse.exited.global
 
-
+source "$ITEM_DIR/top_rows.sh" cpu

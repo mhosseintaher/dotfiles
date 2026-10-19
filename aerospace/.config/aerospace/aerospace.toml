@@ -17,9 +17,11 @@ after-startup-command = [
     # 'exec-and-forget borders active_color=Oxffele3e4 inactive_color=0xff494d64 width=3.0'
 ]
 
-# Notify Sketchybar about workspace change
+# Move the SketchyBar workspace highlight in one batched call per switch:
+# reset every space, then highlight the focused one, so out-of-order hooks
+# self-heal (colors: WHITE and MAGENTA from sketchybar/colors.sh)
 exec-on-workspace-change = ['/bin/bash', '-c',
-    'sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE'
+    'sketchybar --set "/^space\..*/" icon.color=0xffcad3f5 --set "space.$AEROSPACE_FOCUSED_WORKSPACE" icon.color=0xffc6a0f6'
 ]
 
 # Start AeroSpace at login
@@ -169,17 +171,16 @@ alt-shift-semicolon = 'mode service'
 
 alt-shift-r = 'mode resize'
 
+# See: https://nikitabobko.github.io/AeroSpace/commands#resize
+alt-shift-minus = 'resize smart -50'
+alt-shift-equal = 'resize smart +50'
+
 [mode.resize.binding]
 h = 'resize width -50'
 j = 'resize height +50'
 k = 'resize height -50'
 l = 'resize width +50'
 b = 'balance-sizes'
-
-
-# See: https://nikitabobko.github.io/AeroSpace/commands#resize
-alt-shift-minus = 'resize smart -50'
-alt-shift-equal = 'resize smart +50'
 
 enter = 'mode main'
 esc = 'mode main'

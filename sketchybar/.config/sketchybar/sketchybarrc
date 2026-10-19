@@ -37,9 +37,9 @@ default=(
         label.padding_right=10
 )
 sketchybar --default "${default[@]}"
-sketchybar --add event aerospace_workspace_change
 sketchybar --add event timezone_changed
-sketchybar --add event input_source_changed
+# Posted by macOS on every input source switch, so the language item needs no poller
+sketchybar --add event input_source_changed AppleSelectedInputSourcesChangedNotification
 
 ##### Left Items #####
 
@@ -62,11 +62,15 @@ source "$ITEM_DIR/system_block.sh"
 
 sketchybar --hotload on
 
-##### Start background monitors #####
-# Kill any existing language monitor to prevent duplicates
-pkill -f "language_monitor.sh" 2>/dev/null
-# Start language monitor in background
-"$PLUGIN_DIR/language_monitor.sh" &
+##### Start the native stats provider (cpu, memory, net_down, net_up) #####
+# Rebuild only when the binary is missing or older than its source, and stop
+# any previous copy first so a reload never leaves duplicates.
+HELPER_DIR="$CONFIG_DIR/helpers"
+if [ ! -x "$HELPER_DIR/sb_stats" ] || [ "$HELPER_DIR/sb_stats.c" -nt "$HELPER_DIR/sb_stats" ]; then
+  clang -O2 -o "$HELPER_DIR/sb_stats" "$HELPER_DIR/sb_stats.c"
+fi
+pkill -x sb_stats 2>/dev/null
+"$HELPER_DIR/sb_stats" 2 2 &
 
 ##### Force all scripts to run the first time (never do this in a script) #####
 sketchybar --update

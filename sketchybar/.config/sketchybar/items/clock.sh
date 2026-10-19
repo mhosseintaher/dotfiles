@@ -2,7 +2,8 @@
 
 clock=(
     background.color="$PURE_BLACK"
-    update_freq=10
+    update_freq=15
+    updates=when_shown
     icon=$CLOCK
     script="$PLUGIN_DIR/clock.sh"
     click_script="$PLUGIN_DIR/clock_click.sh"

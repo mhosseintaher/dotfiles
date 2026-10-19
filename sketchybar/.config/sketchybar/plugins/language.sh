@@ -1,95 +1,38 @@
 #!/bin/bash
 
+# Runs on input_source_changed, which sketchybarrc binds to macOS's
+# AppleSelectedInputSourcesChangedNotification, so there is no polling.
+
 source "$CONFIG_DIR/colors.sh"
 
-# Get current input source
-CURRENT_LANGUAGE=$(defaults read ~/Library/Preferences/com.apple.HIToolbox.plist AppleSelectedInputSources | \
-    plutil -convert xml1 - -o - | \
-    grep -A1 "KeyboardLayout Name" | \
-    grep "<string>" | \
-    sed 's/<[^>]*>//g' | \
-    sed 's/^[[:space:]]*//' | \
-    head -1)
+ID=$(defaults read com.apple.HIToolbox AppleCurrentKeyboardLayoutInputSourceID 2>/dev/null)
 
-# If the above doesn't work, try alternative method
-if [ -z "$CURRENT_LANGUAGE" ]; then
-    CURRENT_LANGUAGE=$(osascript -e 'tell application "System Events" to tell process "SystemUIServer" to get the name of the first menu bar item of menu bar 1 whose description contains "input source"' 2>/dev/null)
-fi
-
-# If still empty, try getting the language directly from system preferences
-if [ -z "$CURRENT_LANGUAGE" ]; then
-    CURRENT_LANGUAGE=$(defaults read com.apple.HIToolbox AppleSelectedInputSources | \
-        grep "InputSourceID" | \
-        head -1 | \
-        sed 's/.*"\(.*\)".*/\1/' | \
-        sed 's/.*\.//')
-fi
-
-# Default fallback and cleanup
-if [ -z "$CURRENT_LANGUAGE" ]; then
-    CURRENT_LANGUAGE="EN"
-else
-    # Clean up and shorten common language names
-    case "$CURRENT_LANGUAGE" in
-        *"U.S."*|*"US"*|*"American"*|*"English"*)
-            CURRENT_LANGUAGE="EN"
-            ;;
-        *"Spanish"*|*"Español"*)
-            CURRENT_LANGUAGE="ES"
-            ;;
-        *"French"*|*"Français"*)
-            CURRENT_LANGUAGE="FR"
-            ;;
-        *"German"*|*"Deutsch"*)
-            CURRENT_LANGUAGE="DE"
-            ;;
-        *"Italian"*|*"Italiano"*)
-            CURRENT_LANGUAGE="IT"
-            ;;
-        *"Portuguese"*|*"Português"*)
-            CURRENT_LANGUAGE="PT"
-            ;;
-        *"Russian"*|*"Русский"*)
-            CURRENT_LANGUAGE="RU"
-            ;;
-        *"Japanese"*|*"日本語"*)
-            CURRENT_LANGUAGE="JP"
-            ;;
-        *"Chinese"*|*"中文"*)
-            CURRENT_LANGUAGE="CN"
-            ;;
-        *"Korean"*|*"한국어"*)
-            CURRENT_LANGUAGE="KR"
-            ;;
-        *"Arabic"*|*"العربية"*)
-            CURRENT_LANGUAGE="AR"
-            ;;
-        *"Persian"*|*"Farsi"*|*"فارسی"*)
-            CURRENT_LANGUAGE="FA"
-            ;;
-        *)
-            # Take first 2-3 characters if it's a longer name
-            CURRENT_LANGUAGE=$(echo "$CURRENT_LANGUAGE" | cut -c1-3 | tr '[:lower:]' '[:upper:]')
-            ;;
-    esac
-fi
-
-# Set color based on language (optional customization)
-case "$CURRENT_LANGUAGE" in
-    "EN")
-        COLOR="$BLUE"
-        ;;
-    "ES")
-        COLOR="$ORANGE"
-        ;;
-    "FA")
-        COLOR="$MAGENTA"
-        ;;
-    *)
-        COLOR="$WHITE"
-        ;;
+case "$ID" in
+  *Persian*|*Farsi*)                       LANG_CODE="FA" ;;
+  *.US|*.ABC|*USExtended*|*USInternational*|*British*|*Australian*|*Canadian*|*Irish*|*Colemak*|*Dvorak*)
+                                           LANG_CODE="EN" ;;
+  *Arabic*)                                LANG_CODE="AR" ;;
+  *German*)                                LANG_CODE="DE" ;;
+  *French*)                                LANG_CODE="FR" ;;
+  *Spanish*)                               LANG_CODE="ES" ;;
+  *Italian*)                               LANG_CODE="IT" ;;
+  *Portuguese*|*Brazilian*)                LANG_CODE="PT" ;;
+  *Russian*)                               LANG_CODE="RU" ;;
+  *Japanese*|*Kotoeri*)                    LANG_CODE="JP" ;;
+  *Korean*)                                LANG_CODE="KR" ;;
+  *Chinese*|*SCIM*|*TCIM*)                 LANG_CODE="CN" ;;
+  "")                                      LANG_CODE="EN" ;;
+  *) # e.g. com.apple.keylayout.Swedish-Pro -> SWE
+     LANG_CODE=$(printf '%.3s' "${ID##*.}" | tr '[:lower:]' '[:upper:]') ;;
 esac
 
-sketchybar --set "$NAME" label="$CURRENT_LANGUAGE" \
+case "$LANG_CODE" in
+  EN) COLOR="$BLUE" ;;
+  ES) COLOR="$ORANGE" ;;
+  FA) COLOR="$MAGENTA" ;;
+  *)  COLOR="$WHITE" ;;
+esac
+
+sketchybar --set "$NAME" label="$LANG_CODE" \
                          icon.color="$COLOR" \
                          label.color="$COLOR"

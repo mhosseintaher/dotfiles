@@ -10,7 +10,6 @@ battery=(
   update_freq=120
   updates=on
   background.drawing=off
-  script="$PLUGIN_DIR/battery.sh"
 )
 sketchybar --add item battery right \
            --set battery "${battery[@]}" \

@@ -18,19 +18,27 @@ volume_change() {
     *) ICON=$VOLUME_100
   esac
 
-  sketchybar --set volume_icon label=$ICON \
-             --set $NAME slider.percentage=$INFO
-
-  INITIAL_WIDTH="$(sketchybar --query $NAME | jq -r ".slider.width")"
-  if [ "$INITIAL_WIDTH" -eq "0" ]; then
-    sketchybar --animate tanh 30 --set $NAME slider.width=$WIDTH 
+  # Only one collapse timer may live: a running one means the slider is
+  # already open, so stop that timer and skip the open animation.
+  TIMER_FILE="${TMPDIR:-/tmp}/sketchybar_volume_timer"
+  OPEN=(--animate tanh 30 --set $NAME slider.width=$WIDTH)
+  if [ -r "$TIMER_FILE" ] && read -r OLD < "$TIMER_FILE" \
+     && [[ "$(ps -o command= -p "$OLD" 2>/dev/null)" == *volume.sh* ]]; then
+    kill "$OLD" 2>/dev/null
+    OPEN=()
   fi
+  echo $$ > "$TIMER_FILE"
+
+  sketchybar --set volume_icon label=$ICON \
+             --set $NAME slider.percentage=$INFO \
+             "${OPEN[@]}"
 
   sleep 2
 
-  # Check wether the volume was changed another time while sleeping
-  FINAL_PERCENTAGE="$(sketchybar --query $NAME | jq -r ".slider.percentage")"
-  if [ "$FINAL_PERCENTAGE" -eq "$INFO" ]; then
+  # Collapse unless a newer volume change took over the timer
+  read -r CURRENT < "$TIMER_FILE"
+  if [ "$CURRENT" = "$$" ]; then
+    rm -f "$TIMER_FILE"
     sketchybar --animate tanh 30 --set $NAME slider.width=0
   fi
 }
