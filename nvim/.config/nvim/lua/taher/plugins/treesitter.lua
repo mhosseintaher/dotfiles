@@ -1,62 +1,71 @@
 return {
 	{
+		-- main branch (rewrite for nvim 0.12; master is frozen at 0.11). It does not lazy-load
+		-- and has no configs module: it only installs parsers and queries, the features are
+		-- switched on per buffer below.
 		"nvim-treesitter/nvim-treesitter",
-		event = { "BufReadPre", "BufNewFile" },
+		branch = "main",
+		lazy = false,
 		build = ":TSUpdate",
 		config = function()
-			-- import nvim-treesitter plugin
-			local treesitter = require("nvim-treesitter.configs")
-
-			-- configure treesitter
-			treesitter.setup({ -- enable syntax highlighting
-
-				highlight = {
-					enable = true,
-					-- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
-					--  If you are experiencing weird indenting issues, add the language to
-					--  the list of additional_vim_regex_highlighting and disabled languages for indent.
-					additional_vim_regex_highlighting = { "ruby" },
-				},
-				indent = { enable = true, disable = { "ruby" } },
-
-				auto_install = true,
-
-				-- ensure these languages parsers are installed
-				ensure_installed = {
-					"json",
-					"php",
-					"javascript",
-					"typescript",
-					"tsx",
-					"go",
-					"yaml",
-					"html",
-					"css",
-					"python",
-					"http",
-					"prisma",
-					"markdown",
-					"markdown_inline",
-					"graphql",
-					"bash",
-					"lua",
-					"vim",
-					"dockerfile",
-					"gitignore",
-					"query",
-					"vimdoc",
-					"rust",
-				},
-				incremental_selection = {
-					enable = true,
-					keymaps = {
-						init_selection = "<C-space>",
-						node_incremental = "<C-space>",
-						scope_incremental = false,
-					},
-				},
-				additional_vim_regex_highlighting = false,
+			-- parsers come only from this list (no silent fetch + compile on first open);
+			-- async, and a no-op for parsers already installed
+			require("nvim-treesitter").install({
+				"json",
+				"php",
+				"javascript",
+				"typescript",
+				"tsx",
+				"go",
+				"yaml",
+				"html",
+				"css",
+				"python",
+				"http",
+				"prisma",
+				"markdown",
+				"markdown_inline",
+				"graphql",
+				"bash",
+				"lua",
+				"vim",
+				"dockerfile",
+				"gitignore",
+				"query",
+				"vimdoc",
+				"rust",
+				"diff",
+				"gitcommit",
+				"ssh_config",
+				"toml",
+				-- not on main: jsonc (its filetype now uses the json parser) and tmux (dropped
+				-- upstream; tmux.conf keeps vim's regex syntax)
 			})
+
+			-- highlighting for every filetype that has a parser; treesitter indent where the
+			-- language ships indent queries, except ruby, which keeps vim's regex syntax and indent
+			vim.api.nvim_create_autocmd("FileType", {
+				group = vim.api.nvim_create_augroup("taher-treesitter", { clear = true }),
+				callback = function(ev)
+					if not pcall(vim.treesitter.start, ev.buf) then
+						return
+					end
+					local lang = vim.treesitter.language.get_lang(vim.bo[ev.buf].filetype)
+					if lang == "ruby" then
+						vim.bo[ev.buf].syntax = "ON"
+					elseif lang and #vim.api.nvim_get_runtime_file("queries/" .. lang .. "/indents.scm", false) > 0 then
+						vim.bo[ev.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+					end
+				end,
+			})
+
+			-- <C-space>: select the node under the cursor, then grow to its parent on each press
+			-- (master's incremental_selection; nvim 0.12 has it built in, see :h v_an)
+			vim.keymap.set({ "n", "x" }, "<C-space>", function()
+				if vim.treesitter.get_parser(nil, nil, { error = false }) then
+					vim.treesitter.select("parent", vim.v.count1)
+				end
+			end, { desc = "Select treesitter node / grow to parent" })
 		end,
 	},
 	-- NOTE: js,ts,jsx,tsx Auto Close Tags

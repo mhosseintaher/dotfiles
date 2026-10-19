@@ -25,10 +25,11 @@ require("lazy").setup({
   -- colorscheme that will be used when installing plugins.
   install = { colorscheme = { "rose-pine" } },
 
-  -- automatically check for plugin updates
-  checker = { enabled = true, notify = true },
-  change_detection = { notify = true },
-},  { ui = {
+  -- check for plugin updates once a day; the count shows in lualine, no startup popup
+  checker = { enabled = true, notify = false, frequency = 86400 },
+  change_detection = { notify = false },
+
+  ui = {
     -- If you are using a Nerd Font: set icons to an empty table which will use the
     -- default lazy.nvim defined Nerd Font icons, otherwise define a unicode icons table
     icons = vim.g.have_nerd_font and {} or {
@@ -46,5 +47,6 @@ require("lazy").setup({
       task = '📌',
       lazy = '💤 ',
     },
-  }})
+  },
+})
 

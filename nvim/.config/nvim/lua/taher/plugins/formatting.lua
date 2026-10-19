@@ -15,14 +15,6 @@ return {
                 --         end
                 --     end,
                 -- },
-                ["markdownlint-cli2"] = {
-                    condition = function(_, ctx)
-                        local diag = vim.tbl_filter(function(d)
-                            return d.source == "markdownlint"
-                        end, vim.diagnostic.get(ctx.buf))
-                        return #diag > 0
-                    end,
-                },
             },
                 formatters_by_ft = {
 				javascript = { "biome-check" },
@@ -39,11 +31,11 @@ return {
                 lua = { "stylua" },
                 go = { "gofmt", "goimports" },
                 -- python = { "black" },
-                markdown = { "prettier", "markdown-toc" },
+                markdown = { "prettier" }, -- markdown-toc was never installed
                 -- ["markdown.mdx"] = { "prettier", "markdownlint", "markdown-toc" },
             },
             format_on_save = {
-            	lsp_fallback = true,
+            	lsp_format = "fallback",
             	async = false,
             	timeout_ms = 1000,
             },
@@ -60,13 +52,10 @@ return {
                 "false",
             },
         }
-        conform.formatters.shfmt = {
-            prepend_args = { "-i", "4" },
-        }
 
-        vim.keymap.set({ "n", "v" }, "<leader>f", function()
+        vim.keymap.set({ "n", "x" }, "<leader>f", function()
             conform.format({
-                lsp_fallback = true,
+                lsp_format = "fallback",
                 async = false,
                 timeout_ms = 1000,
             })

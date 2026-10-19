@@ -2,6 +2,7 @@ return {
     -- Setup Folding with nvim-ufo
     {
         "kevinhwang91/nvim-ufo",
+        event = "BufReadPost", -- ufo attaches on BufWinEnter, which follows
         dependencies = {
             "kevinhwang91/promise-async",
         },

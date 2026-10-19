@@ -9,13 +9,62 @@ return {
 		"andrew-george/telescope-themes",
 		-- 'nvim-telescope/telescope-ui-select.nvim',
 	},
+	cmd = "Telescope",
+	-- Keymaps (telescope loads on the first one used)
+	keys = {
+		{ "<leader>sh", function() require("telescope.builtin").help_tags() end, desc = "[S]earch [H]elp" },
+		{ "<leader>sk", function() require("telescope.builtin").keymaps() end, desc = "[S]earch [K]eymaps" },
+		{ "<leader>sf", function() require("telescope.builtin").find_files() end, desc = "[S]earch [F]iles" },
+		{ "<leader>ss", function() require("telescope.builtin").builtin() end, desc = "[S]earch [S]elect Telescope" },
+		{ "<leader>sw", function() require("telescope.builtin").grep_string() end, desc = "[S]earch current [W]ord" },
+		{ "<leader>sg", function() require("telescope.builtin").live_grep() end, desc = "[S]earch by [G]rep" },
+		{ "<leader>sd", function() require("telescope.builtin").diagnostics() end, desc = "[S]earch [D]iagnostics" },
+		{ "<leader>sr", function() require("telescope.builtin").resume() end, desc = "[S]earch [R]esume" },
+		{ "<leader>s.", function() require("telescope.builtin").oldfiles() end, desc = '[S]earch Recent Files ("." for repeat)' },
+		{ "<leader><leader>", function() require("telescope.builtin").buffers() end, desc = "[ ] Find existing buffers" },
+		{ "<C-p>", function() require("telescope.builtin").git_files() end, desc = "My Always Control P" },
+		{
+			"<leader>s/",
+			function()
+				require("telescope.builtin").live_grep({
+					grep_open_files = true,
+					prompt_title = "Live Grep in Open Files",
+				})
+			end,
+			desc = "[S]earch [/] in Open Files",
+		},
+		-- Shortcut for searching your Neovim configuration files
+		{
+			"<leader>sn",
+			function()
+				require("telescope.builtin").find_files({ cwd = vim.fn.stdpath("config") })
+			end,
+			desc = "[S]earch [N]eovim files",
+		},
+		{
+			"<leader>sWc",
+			function()
+				local word = vim.fn.expand("<cWORD>")
+				require("telescope.builtin").grep_string({ search = word })
+			end,
+			desc = "[S]earch Connected [W]ords under [c]ursor",
+		},
+		{
+			"<leader>ths",
+			function()
+				-- the other colorschemes are lazy; load them so the picker lists them
+				require("lazy").load({
+					plugins = { "gruvbox.nvim", "kanagawa.nvim", "solarized-osaka.nvim", "folkeTokyonight" },
+				})
+				vim.cmd("Telescope themes")
+			end,
+			silent = true,
+			desc = "Theme Switcher",
+		},
+	},
 	config = function()
 		local telescope = require("telescope")
 		local actions = require("telescope.actions")
-		local builtin = require("telescope.builtin")
-
-		telescope.load_extension("fzf")
-		telescope.load_extension("themes")
 
 		telescope.setup({
 			defaults = {
@@ -33,47 +82,15 @@ return {
 					enable_live_preview = true,
 					persist = {
 						enabled = true,
-						path = vim.fn.stdpath("config") .. "/lua/colorscheme.lua",
+						-- init.lua loads this file; it lives in the dotfiles repo on purpose
+						path = vim.fn.stdpath("config") .. "/lua/current-theme.lua",
 					},
 				},
 			},
 		})
 
-		-- Keymaps
-		vim.keymap.set("n", "<leader>sh", builtin.help_tags, { desc = "[S]earch [H]elp" })
-		vim.keymap.set("n", "<leader>sk", builtin.keymaps, { desc = "[S]earch [K]eymaps" })
-		vim.keymap.set("n", "<leader>sf", builtin.find_files, { desc = "[S]earch [F]iles" })
-		vim.keymap.set("n", "<leader>ss", builtin.builtin, { desc = "[S]earch [S]elect Telescope" })
-		vim.keymap.set("n", "<leader>sw", builtin.grep_string, { desc = "[S]earch current [W]ord" })
-		vim.keymap.set("n", "<leader>sg", builtin.live_grep, { desc = "[S]earch by [G]rep" })
-		vim.keymap.set("n", "<leader>sd", builtin.diagnostics, { desc = "[S]earch [D]iagnostics" })
-		vim.keymap.set("n", "<leader>sr", builtin.resume, { desc = "[S]earch [R]esume" })
-		vim.keymap.set("n", "<leader>s.", builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
-		vim.keymap.set("n", "<leader><leader>", builtin.buffers, { desc = "[ ] Find existing buffers" })
-		vim.keymap.set("n", "<C-p>", builtin.git_files, { desc = "My Always Control P" })
-
-		vim.keymap.set("n", "<leader>s/", function()
-			builtin.live_grep({
-				grep_open_files = true,
-				prompt_title = "Live Grep in Open Files",
-			})
-		end, { desc = "[S]earch [/] in Open Files" })
-
-		-- Shortcut for searching your Neovim configuration files
-		vim.keymap.set("n", "<leader>sn", function()
-			builtin.find_files({ cwd = vim.fn.stdpath("config") })
-		end, { desc = "[S]earch [N]eovim files" })
-
-		vim.keymap.set("n", "<leader>sWc", function()
-			local word = vim.fn.expand("<cWORD>")
-			builtin.grep_string({ search = word })
-		end, { desc = "[S]earch Connected [W]ords under [c]ursor" })
-
-		vim.keymap.set(
-			"n",
-			"<leader>ths",
-			"<cmd>Telescope themes<CR>",
-			{ noremap = true, silent = true, desc = "Theme Switcher" }
-		)
+		-- extensions read their config at load time, so load them after setup()
+		telescope.load_extension("fzf")
+		telescope.load_extension("themes")
 	end,
 }

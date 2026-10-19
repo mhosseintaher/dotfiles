@@ -4,8 +4,8 @@ vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 vim.keymap.set("n", "<leader>pv", vim.cmd.Ex)
 
-vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv", { desc = "moves lines down in visual selection" })
-vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv", { desc = "moves lines up in visual selection" })
+vim.keymap.set("x", "J", ":m '>+1<CR>gv=gv", { desc = "moves lines down in visual selection" })
+vim.keymap.set("x", "K", ":m '<-2<CR>gv=gv", { desc = "moves lines up in visual selection" })
 
 vim.keymap.set("n", "J", "mzJ`z")
 
@@ -14,20 +14,21 @@ vim.keymap.set("n", "<C-u>", "<C-u>zz", { desc = "move up in buffer with cursor 
 vim.keymap.set("n", "n", "nzzzv")
 vim.keymap.set("n", "N", "Nzzzv")
 
-vim.keymap.set("v", "<", "<gv", opts)
-vim.keymap.set("v", ">", ">gv", opts)
+vim.keymap.set("x", "<", "<gv", opts)
+vim.keymap.set("x", ">", ">gv", opts)
 
--- the how it be paste
-vim.keymap.set("x", "<leader>p", [["_dP]])
+-- the how it be paste (visual P puts without yanking the replaced text, and unlike
+-- "_dP it does not paste one char early when the selection ends at end of line)
+vim.keymap.set("x", "<leader>p", "P")
 
 -- remember yanked
-vim.keymap.set("v", "p", '"_dp', opts)
+vim.keymap.set("x", "p", "P", opts)
 
 -- Copies or Yank to system clipboard
 vim.keymap.set("n", "<leader>Y", [["+Y]], opts)
 
 -- leader d delete wont remember as yanked/clipboard when delete pasting
-vim.keymap.set({ "n", "v" }, "<leader>d", [["_d]])
+vim.keymap.set({ "n", "x" }, "<leader>d", [["_d]])
 -- OR normal delete wont yank into clipboard
 -- vim.keymap.set({ "n", "v" }, "d", [["_d]])
 
@@ -55,7 +56,7 @@ vim.keymap.set(
 )
 
 -- Executes shell command from in here making file executable
-vim.keymap.set("n", "<leader>x", "<cmd>!chmod +x %<CR>", { silent = true, desc = "makes file executable" })
+vim.keymap.set("n", "<leader>x", "<cmd>!chmod +x %:S<CR>", { silent = true, desc = "makes file executable" })
 
 -- Hightlight yanking
 vim.api.nvim_create_autocmd("TextYankPost", {
@@ -110,8 +111,4 @@ vim.keymap.set("n", "<right>", '<cmd>echo "Use l to move!!"<CR>')
 vim.keymap.set("n", "<up>", '<cmd>echo "Use k to move!!"<CR>')
 vim.keymap.set("n", "<down>", '<cmd>echo "Use j to move!!"<CR>')
 
---  See `:help wincmd` for a list of all window commands
-vim.keymap.set("n", "<C-h>", "<C-w><C-h>", { desc = "Move focus to the left window" })
-vim.keymap.set("n", "<C-l>", "<C-w><C-l>", { desc = "Move focus to the right window" })
-vim.keymap.set("n", "<C-j>", "<C-w><C-j>", { desc = "Move focus to the lower window" })
-vim.keymap.set("n", "<C-k>", "<C-w><C-k>", { desc = "Move focus to the upper window" })
+-- <C-h/j/k/l> window moves come from vim-tmux-navigator (plugins/init.lua)

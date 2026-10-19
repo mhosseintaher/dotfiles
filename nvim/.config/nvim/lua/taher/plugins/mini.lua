@@ -37,6 +37,7 @@
     {
         'echasnovski/mini.comment',
         version = false,
+        event = "VeryLazy",
         dependencies = {
             "JoosepAlviste/nvim-ts-context-commentstring",
         },
@@ -61,34 +62,30 @@
     -- Get rid of whitespace
     {
         "echasnovski/mini.trailspace",
-        event = { "BufReadPost", "BufNewFile" },
+        keys = {
+            { "<leader>wr", function() require("mini.trailspace").trim() end, desc = "Trailing [w]hiterpace [r]emove from current file" },
+        },
+        init = function()
+            -- trim only, never highlight (replaces the old CursorMoved unhighlight autocmd)
+            vim.g.minitrailspace_disable = true
+        end,
         config = function()
-            local miniTrailspace = require("mini.trailspace")
-
-            miniTrailspace.setup({
+            require("mini.trailspace").setup({
                 only_in_normal_buffers = true,
-            })
-            vim.keymap.set("n", "<leader>wr", function() miniTrailspace.trim() end, { desc = "Trailing [w]hiterpace [r]emove from current file" })
-
-            -- Enrure highlight never reappears by removing it on CursorMoved
-            vim.api.nvim_create_autocmd("CursorMoved", {
-                pattern = "*",
-                callback = function()
-                    require("mini.trailspace").unhighlight()
-                end,
             })
         end,
     },
     -- Split & join
     {
         "echasnovski/mini.splitjoin",
+        keys = {
+            { "<leader>fj", function() require("mini.splitjoin").join() end, mode = { "n", "x" }, desc = "[F]ormat [J]oin arguments" },
+            { "<leader>fk", function() require("mini.splitjoin").split() end, mode = { "n", "x" }, desc = "[F]ormat [S]plit arguments" },
+        },
         config = function()
-            local miniSplitJoin = require("mini.splitjoin")
-            miniSplitJoin.setup({
+            require("mini.splitjoin").setup({
                 mappings = { toggle = "" }, -- Disable default mapping
             })
-            vim.keymap.set({"n", "x"}, "<leader>fj", function() miniSplitJoin.join() end, { desc = "[F]ormat [J]oin arguments" })
-            vim.keymap.set({ "n", "x" }, "<leader>fk", function() miniSplitJoin.split() end, { desc = "[F]ormat [S]plit arguments" })
         end,
     },
   }

@@ -3,6 +3,8 @@ return {
 	event = { "BufReadPre", "BufNewFile" },
 	dependencies = {
 		"hrsh7th/cmp-nvim-lsp",
+		-- mason.setup puts mason/bin on PATH before any server starts
+		"williamboman/mason.nvim",
 		-- "saghen/blink.cmp",
 		{ "antosha417/nvim-lsp-file-operations", config = true },
 		{ "j-hui/fidget.nvim", opts = {} },
@@ -34,7 +36,7 @@ return {
 				vim.keymap.set("n", "gt", "<cmd>Telescope lsp_type_definitions<CR>", opts) -- show lsp type definitions
 
 				opts.desc = "See available code actions"
-				vim.keymap.set({ "n", "v" }, "<leader>vca", function()
+				vim.keymap.set({ "n", "x" }, "<leader>vca", function()
 					vim.lsp.buf.code_action()
 				end, opts) -- see available code actions, in visual mode will apply to selection
 
@@ -82,19 +84,15 @@ return {
 			update_in_insert = false, -- Keep diagnostics active in insert mode
 		})
 
-		-- NOTE :
-		-- Moved back from mason_lspconfig.setup_handlers from mason.lua file
-		-- as mason setup_handlers is deprecated & its causing issues with lsp settings
-		--
-		-- Setup servers
-		local lspconfig = require("lspconfig")
-		local cmp_nvim_lsp = require("cmp_nvim_lsp")
-		local capabilities = cmp_nvim_lsp.default_capabilities()
+		-- NOTE: nvim 0.11 native LSP. nvim-lspconfig ships the base configs (lsp/*.lua);
+		-- vim.lsp.config only adds my overrides. Servers run from mason/bin, and the
+		-- node ones use whatever node is first on PATH.
+		vim.lsp.config("*", {
+			capabilities = require("cmp_nvim_lsp").default_capabilities(),
+		})
 
-		-- Config lsp servers here
 		-- lua_ls
-		lspconfig.lua_ls.setup({
-			capabilities = capabilities,
+		vim.lsp.config("lua_ls", {
 			settings = {
 				Lua = {
 					diagnostics = {
@@ -112,29 +110,9 @@ return {
 				},
 			},
 		})
-		-- emmet_ls
-		lspconfig.emmet_ls.setup({
-			capabilities = capabilities,
-			filetypes = {
-				"html",
-				"typescriptreact",
-				"javascriptreact",
-				"css",
-				"sass",
-				"scss",
-				"less",
-				"svelte",
-			},
-			cmd = {
-				"/Users/taher/.nvm/versions/node/v20.19.3/bin/node",
-				vim.fn.stdpath("data") .. "/mason/packages/emmet-ls/node_modules/.bin/emmet-ls",
-				"--stdio",
-			},
-		})
 
 		-- emmet_language_server
-		lspconfig.emmet_language_server.setup({
-			capabilities = capabilities,
+		vim.lsp.config("emmet_language_server", {
 			filetypes = {
 				"css",
 				"eruby",
@@ -146,12 +124,6 @@ return {
 				"scss",
 				"pug",
 				"typescriptreact",
-			},
-			cmd = {
-				"/Users/taher/.nvm/versions/node/v20.19.3/bin/node",
-				vim.fn.stdpath("data")
-					.. "/mason/packages/emmet-language-server/node_modules/.bin/emmet-language-server",
-				"--stdio",
 			},
 			init_options = {
 				includeLanguages = {},
@@ -167,20 +139,20 @@ return {
 		})
 
 		-- ts_ls (replaces tsserver)
-		lspconfig.ts_ls.setup({
-			capabilities = capabilities,
-			cmd = {
-				"/Users/taher/.nvm/versions/node/v20.19.3/bin/node",
-				vim.fn.stdpath("data")
-					.. "/mason/packages/typescript-language-server/node_modules/.bin/typescript-language-server",
-				"--stdio",
-			},
-			root_dir = function(fname)
-				local util = lspconfig.util
-				return not util.root_pattern("deno.json", "deno.jsonc")(fname)
-					and util.root_pattern("tsconfig.json", "package.json", "jsconfig.json", ".git")(fname)
+		vim.lsp.config("ts_ls", {
+			-- never in deno projects; otherwise root at the nearest tsconfig/package/jsconfig/.git
+			-- (no root means no client, like the old single_file_support = false)
+			root_dir = function(bufnr, on_dir)
+				if vim.fs.root(bufnr, { "deno.json", "deno.jsonc" }) then
+					return
+				end
+				local markers = { "tsconfig.json", "package.json", "jsconfig.json", ".git" }
+				-- nested list = equal priority, the nearest directory wins
+				local root = vim.fs.root(bufnr, vim.fn.has("nvim-0.11.3") == 1 and { markers } or markers)
+				if root then
+					on_dir(root)
+				end
 			end,
-			single_file_support = false,
 			init_options = {
 				preferences = {
 					includeCompletionsWithSnippetText = true,
@@ -189,15 +161,53 @@ return {
 			},
 		})
 
-		lspconfig.gopls.setup({
-			capabilities = capabilities,
-
+		vim.lsp.config("gopls", {
 			settings = {
 				gopls = {
 					-- enable staticcheck (which bundles lots of extra analyzers)
 					staticcheck = true,
 				},
 			},
+		})
+
+		-- tailwindcss: lspconfig's root_dir falls back to .git (for tailwind v4), which starts
+		-- it in every git repo. Start it only below a tailwind/postcss config, or a
+		-- package.json (or mix.lock/Gemfile.lock) that names tailwind.
+		vim.lsp.config("tailwindcss", {
+			root_dir = function(bufnr, on_dir)
+				local util = require("lspconfig.util")
+				local fname = vim.api.nvim_buf_get_name(bufnr)
+				local markers = {
+					"tailwind.config.js",
+					"tailwind.config.cjs",
+					"tailwind.config.mjs",
+					"tailwind.config.ts",
+					"postcss.config.js",
+					"postcss.config.cjs",
+					"postcss.config.mjs",
+					"postcss.config.ts",
+				}
+				markers = util.insert_package_json(markers, "tailwindcss", fname)
+				markers = util.root_markers_with_field(markers, { "mix.lock", "Gemfile.lock" }, "tailwind", fname)
+				local found = vim.fs.find(markers, { path = fname, upward = true })[1]
+				if found then
+					on_dir(vim.fs.dirname(found))
+				end
+			end,
+		})
+
+		-- every server mason-lspconfig installs; eslint starts only where an eslint config is
+		-- found, tailwindcss only where the root_dir above finds one
+		vim.lsp.enable({
+			"lua_ls",
+			"ts_ls",
+			"html",
+			"cssls",
+			"tailwindcss",
+			"gopls",
+			"emmet_language_server",
+			"eslint",
+			"marksman",
 		})
 
 		-- HACK: If using Blink.cmp Configure all LSPs here

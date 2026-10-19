@@ -20,8 +20,33 @@ vim.o.breakindent = true
 
 vim.opt.swapfile = false
 vim.opt.backup = false
-vim.opt.undodir = os.getenv("HOME") .. "/.vim/undodir"
+-- persistent undo lives in nvim's own state dir, readable only by me (0700)
+local undodir = vim.fn.stdpath("state") .. "/undo"
+vim.fn.mkdir(undodir, "p", tonumber("700", 8))
+vim.uv.fs_chmod(undodir, tonumber("700", 8))
+vim.opt.undodir = undodir
 vim.opt.undofile = true
+
+-- no undo history on disk for secret-ish files (old secrets would outlive edits);
+-- BufWritePre/BufFilePost also catch ":w .env" and ":saveas" from an unnamed or other buffer
+vim.api.nvim_create_autocmd({ "BufReadPre", "BufNewFile", "BufWritePre", "BufFilePost" }, {
+	group = vim.api.nvim_create_augroup("secret-noundo", { clear = true }),
+	pattern = {
+		"*.env",
+		".env*",
+		"*.auth",
+		"auth.json",
+		"*/.ssh/*",
+		"*/.gnupg/*",
+		"/tmp/*",
+		"/private/tmp/*",
+		"/var/folders/*",
+		"/private/var/folders/*",
+	},
+	callback = function()
+		vim.opt_local.undofile = false
+	end,
+})
 
 vim.opt.hlsearch = true
 vim.opt.incsearch = false
@@ -77,3 +102,36 @@ vim.opt.listchars = { tab = "» ", trail = "·", nbsp = "␣" }
 vim.o.cursorline = true
 
 vim.o.confirm = true
+
+-- tell tmux this pane runs nvim (pane option @pane-is-vim), so tmux's C-h/j/k/l hand the key
+-- to nvim even when a wrapper (nzo, git commit) started it and tmux's process check misses it
+if vim.env.TMUX and vim.env.TMUX_PANE then
+	local function pane_is_vim(on)
+		local argv = { "tmux", "set-option", "-p", "-t", vim.env.TMUX_PANE }
+		vim.list_extend(argv, on and { "@pane-is-vim", "1" } or { "-u", "@pane-is-vim" })
+		local ok, proc = pcall(vim.system, argv)
+		return ok and proc or nil
+	end
+	local group = vim.api.nvim_create_augroup("tmux-pane-is-vim", { clear = true })
+	vim.api.nvim_create_autocmd({ "VimEnter", "VimResume" }, {
+		group = group,
+		callback = function()
+			pane_is_vim(true)
+		end,
+	})
+	vim.api.nvim_create_autocmd("VimSuspend", {
+		group = group,
+		callback = function()
+			pane_is_vim(false)
+		end,
+	})
+	vim.api.nvim_create_autocmd("VimLeavePre", {
+		group = group,
+		callback = function()
+			local proc = pane_is_vim(false)
+			if proc then
+				proc:wait(200) -- let it land before nvim exits
+			end
+		end,
+	})
+end

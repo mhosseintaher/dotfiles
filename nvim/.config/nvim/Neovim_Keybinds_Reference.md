@@ -10,23 +10,23 @@ This document contains all keybinds configured in your Neovim setup, organized b
 
 | Keybind | Plugin/File | Action | Description |
 |---------|-------------|--------|-------------|
-| `[h` | gitsigns | `gs.prev_hunk` | Previous git hunk |
+| `[h` | gitsigns | `gs.nav_hunk("prev")` | Previous git hunk |
 | `[t` | todo-comments | `todo_comments.jump_prev()` | Previous todo comment |
-| `]h` | gitsigns | `gs.next_hunk` | Next git hunk |
+| `]h` | gitsigns | `gs.nav_hunk("next")` | Next git hunk |
 | `]t` | todo-comments | `todo_comments.jump_next()` | Next todo comment |
 | `<C-d>` | core/keymaps | `<C-d>zz` | Move down with cursor centered |
 | `<C-f>` | core/keymaps | `<cmd>!tmux neww tmux-sessionizer<CR>` | Start new tmux session |
-| `<C-h>` | core/keymaps | `<C-w><C-h>` | Focus left window |
+| `<C-h>` | vim-tmux-navigator | `TmuxNavigateLeft` | Focus left window / tmux pane |
 | `<C-h>` | harpoon | `harpoon:list():select(1)` | Select harpoon file 1 |
-| `<C-j>` | core/keymaps | `<C-w><C-j>` | Focus lower window |
-| `<C-k>` | core/keymaps | `<C-w><C-k>` | Focus upper window |
-| `<C-l>` | core/keymaps | `<C-w><C-l>` | Focus right window |
+| `<C-j>` | vim-tmux-navigator | `TmuxNavigateDown` | Focus lower window / tmux pane |
+| `<C-k>` | vim-tmux-navigator | `TmuxNavigateUp` | Focus upper window / tmux pane |
+| `<C-l>` | vim-tmux-navigator | `TmuxNavigateRight` | Focus right window / tmux pane |
 | `<C-n>` | harpoon | `harpoon:list():select(3)` | Select harpoon file 3 |
 | `<C-p>` | telescope | `builtin.git_files` | Git files |
 | `<C-s>` | harpoon | `harpoon:list():select(4)` | Select harpoon file 4 |
 | `<C-S-N>` | harpoon | `harpoon:list():next()` | Next harpoon file |
 | `<C-S-P>` | harpoon | `harpoon:list():prev()` | Previous harpoon file |
-| `<C-space>` | treesitter | init_selection | Init treesitter selection |
+| `<C-space>` | treesitter | `vim.treesitter.select('parent')` | Select treesitter node under cursor (built-in `van`) |
 | `<C-t>` | harpoon | `harpoon:list():select(2)` | Select harpoon file 2 |
 | `<C-u>` | core/keymaps | `<C-u>zz` | Move up with cursor centered |
 | `<down>` | core/keymaps | `<cmd>echo "Use j to move!!"<CR>` | Disabled - use j |
@@ -42,7 +42,7 @@ This document contains all keybinds configured in your Neovim setup, organized b
 | `K` | lspconfig | `vim.lsp.buf.hover` | Show hover documentation |
 | `n` | core/keymaps | `nzzzv` | Next search with cursor centered |
 | `N` | core/keymaps | `Nzzzv` | Previous search with cursor centered |
-| `p` | core/keymaps (visual) | `"_dp` | Paste without copying deleted text |
+| `p` | core/keymaps (visual) | `P` | Paste without copying replaced text |
 | `Q` | core/keymaps | `<nop>` | Disabled |
 | `x` | core/keymaps | `"_x` | Delete character without yanking |
 | `zM` | nvim-ufo | `require('ufo').closeAllFolds` | Close all folds |
@@ -71,7 +71,6 @@ This document contains all keybinds configured in your Neovim setup, organized b
 | `<leader>gs` | vim-fugitive | `vim.cmd.Git` | Git status |
 | `<leader>gs` | gitsigns | `gs.stage_hunk` | Stage hunk |
 | `<leader>gS` | gitsigns | `gs.stage_buffer` | Stage buffer |
-| `<leader>gu` | gitsigns | `gs.undo_stage_hunk` | Undo stage hunk |
 | `<leader>l` | linting | `lint.try_lint()` | Trigger linting |
 | `<leader>lg` | lazygit (disabled) | `<cmd>LazyGit<cr>` | Open lazy git |
 | `<leader>lx` | core/keymaps | Toggle LSP diagnostics | Toggle LSP diagnostics visibility |
@@ -109,7 +108,7 @@ This document contains all keybinds configured in your Neovim setup, organized b
 | `<leader>u` | undotree | `vim.cmd.UndotreeToggle` | Toggle undotree |
 | `<leader>vca` | lspconfig | `vim.lsp.buf.code_action()` | See available code actions |
 | `<leader>wr` | mini.trailspace | `miniTrailspace.trim()` | Remove trailing whitespace |
-| `<leader>x` | core/keymaps | `<cmd>!chmod +x %<CR>` | Make file executable |
+| `<leader>x` | core/keymaps | `<cmd>!chmod +x %:S<CR>` | Make file executable |
 | `<leader>xe` | emmet | `require('nvim-emmet').wrap_with_abbreviation` | Emmet wrap with abbreviation |
 | `<leader>xl` | trouble | `<cmd>Trouble loclist toggle<CR>` | Open trouble location list |
 | `<leader>xq` | trouble | `<cmd>Trouble quickfix toggle<CR>` | Open trouble quickfix list |
@@ -119,6 +118,8 @@ This document contains all keybinds configured in your Neovim setup, organized b
 | `<leader>Y` | core/keymaps | `[["+Y]]` | Yank to system clipboard |
 
 ## Visual Mode Keybinds
+
+Visual mode only (`x`), so they never fire while typing over a snippet placeholder (Select mode).
 
 | Keybind | Plugin/File | Action | Description |
 |---------|-------------|--------|-------------|
@@ -133,7 +134,9 @@ This document contains all keybinds configured in your Neovim setup, organized b
 | `<leader>fk` | mini.splitjoin | `miniSplitJoin.split()` | Split arguments |
 | `<leader>gr` | gitsigns | Reset selected hunk | Reset selected git hunk |
 | `<leader>gs` | gitsigns | Stage selected hunk | Stage selected git hunk |
-| `<leader>p` | core/keymaps | `[["_dP]]` | Paste without yanking |
+| `<C-space>` | treesitter | `vim.treesitter.select('parent')` | Grow selection to parent node (built-in `an`) |
+| `p` | core/keymaps | `P` | Paste without yanking replaced text |
+| `<leader>p` | core/keymaps | `P` | Paste without yanking |
 | `<leader>vca` | lspconfig | `vim.lsp.buf.code_action()` | Code actions for selection |
 | `<leader>xe` | emmet | `require('nvim-emmet').wrap_with_abbreviation` | Emmet wrap selection |
 
@@ -151,7 +154,6 @@ This document contains all keybinds configured in your Neovim setup, organized b
 | `<C-k>` | nvim-cmp | `select_prev_item` | Previous completion item |
 | `<C-n>` | nvim-cmp | `select_next_item` | Next completion item |
 | `<C-p>` | nvim-cmp | `select_prev_item` | Previous completion item |
-| `<C-space>` | treesitter | node_incremental | Incremental selection |
 | `<C-y>` | nvim-cmp | `confirm(entry)` | Confirm completion |
 | `<CR>` | nvim-cmp | `confirm(entry)` | Confirm completion |
 | `<Down>` | nvim-cmp | `select_next_item` | Next completion item |

@@ -1,11 +1,24 @@
 return {
 	"williamboman/mason.nvim",
-	lazy = false,
+	-- loaded by nvim-lspconfig (BufReadPre/BufNewFile) or by one of these commands
+	cmd = {
+		"Mason",
+		"MasonInstall",
+		"MasonUninstall",
+		"MasonUninstallAll",
+		"MasonUpdate",
+		"MasonLog",
+		"MasonToolsInstall",
+		"MasonToolsInstallSync",
+		"MasonToolsUpdate",
+		"MasonToolsUpdateSync",
+		"MasonToolsClean",
+		"LspInstall",
+		"LspUninstall",
+	},
 	dependencies = {
 		"williamboman/mason-lspconfig.nvim",
 		"WhoIsSethDaniel/mason-tool-installer.nvim",
-		"hrsh7th/cmp-nvim-lsp",
-		"neovim/nvim-lspconfig",
 		-- "saghen/blink.cmp",
 	},
 	config = function()
@@ -32,7 +45,7 @@ return {
 		})
 
 		mason_lspconfig.setup({
-			automatic_enable = false,
+			automatic_enable = false, -- lspconfig.lua enables its own list (emmet-ls stays off)
 			-- servers for mason to install
 			ensure_installed = {
 				"lua_ls",
@@ -41,7 +54,6 @@ return {
 				"cssls",
 				"tailwindcss",
 				"gopls",
-				"emmet_ls",
 				"emmet_language_server",
 				"eslint",
 				"marksman",
@@ -59,9 +71,17 @@ return {
 				{ "eslint_d", version = "13.1.2" },
 				"golangci-lint",
 			},
+			-- check for missing tools at most once a day, 3 s after startup
+			debounce_hours = 24,
+			start_delay = 3000,
 
 			-- NOTE: mason BREAKING Change! Removed setup_handlers
 			-- moved lsp configuration settings back into lspconfig.lua file
 		})
+		-- its start check hangs on a VimEnter autocmd (augroup mti_start); when mason
+		-- lazy-loads after VimEnter that never fires, so fire it now (it deletes itself)
+		if vim.v.vim_did_enter == 1 then
+			pcall(vim.api.nvim_exec_autocmds, "VimEnter", { group = "mti_start" })
+		end
 	end,
 }

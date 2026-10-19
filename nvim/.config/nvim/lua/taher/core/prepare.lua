@@ -1,8 +1,6 @@
-vim.g.python3_host_prog =
-  vim.fn.expand('/Users/taher/.pyenv/versions/3.13.5/bin/python')
-
-vim.g.node_host_prog =
-  vim.fn.expand('/Users/taher/.nvm/versions/node/v24.4.1/bin/neovim-node-host')
-
-vim.g.ruby_host_prog =
-  vim.fn.expand('/Users/taher/.rbenv/versions/3.4.5/bin/neovim-ruby-host')
+-- No plugin ships rplugin/ and nothing calls :python3/:ruby/:perl or a node host,
+-- so skip the provider hosts instead of pinning pyenv/nvm/rbenv versions
+vim.g.loaded_python3_provider = 0
+vim.g.loaded_node_provider = 0
+vim.g.loaded_ruby_provider = 0
+vim.g.loaded_perl_provider = 0

@@ -4,48 +4,29 @@ return {
 	branch = "harpoon2",
 	dependencies = {
 		"nvim-lua/plenary.nvim",
-		"nvim-telescope/telescope.nvim",
 	},
-	config = function()
-		local harpoon = require("harpoon")
-		local conf = require("telescope.config").values
-
-		harpoon:setup({
-			global_settings = {
-				save_on_toggle = true,
-				save_on_change = true,
-			},
-		})
-
+	-- loads on first use of one of these keys
+	keys = {
 		--Harpoon Nav Interface
-		vim.keymap.set("n", "<leader>a", function()
-			harpoon:list():add()
-		end, { desc = "Harpoon add file" })
-		vim.keymap.set("n", "<C-e>", function()
-			harpoon.ui:toggle_quick_menu(harpoon:list())
-		end)
+		{ "<leader>a", function() require("harpoon"):list():add() end, desc = "Harpoon add file" },
+		{ "<C-e>", function() local harpoon = require("harpoon"); harpoon.ui:toggle_quick_menu(harpoon:list()) end },
 
 		--Harpoon marked files
-		vim.keymap.set("n", "<C-y>", function()
-			harpoon:list():select(1)
-		end)
-		vim.keymap.set("n", "<C-t>", function()
-			harpoon:list():select(2)
-		end)
-		vim.keymap.set("n", "<C-n>", function()
-			harpoon:list():select(3)
-		end)
-		vim.keymap.set("n", "<C-s>", function()
-			harpoon:list():select(4)
-		end)
+		{ "<C-y>", function() require("harpoon"):list():select(1) end },
+		{ "<C-t>", function() require("harpoon"):list():select(2) end },
+		{ "<C-n>", function() require("harpoon"):list():select(3) end },
+		{ "<C-s>", function() require("harpoon"):list():select(4) end },
 
 		-- Toggle previous & next buffers stored within Harpoon list
-		vim.keymap.set("n", "<C-S-P>", function()
-			harpoon:list():prev()
-		end)
-		vim.keymap.set("n", "<C-S-N>", function()
-			harpoon:list():next()
-		end)
-
+		{ "<C-S-P>", function() require("harpoon"):list():prev() end },
+		{ "<C-S-N>", function() require("harpoon"):list():next() end },
+	},
+	config = function()
+		-- harpoon 2 reads `settings` (the old global_settings/save_on_change were ignored)
+		require("harpoon"):setup({
+			settings = {
+				save_on_toggle = true,
+			},
+		})
 	end,
 }

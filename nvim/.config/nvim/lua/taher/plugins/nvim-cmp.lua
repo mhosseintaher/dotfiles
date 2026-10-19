@@ -3,7 +3,7 @@
 
 return {
     "hrsh7th/nvim-cmp",
-    -- event = "InsertEnter",
+    event = "InsertEnter", -- no cmdline sources are set up, so CmdlineEnter is not needed
     branch = "main", -- fix for deprecated functions coming in nvim 0.13
     dependencies = {
         "hrsh7th/cmp-buffer", -- source for text in buffer
@@ -17,14 +17,11 @@ return {
         },
         "saadparwaiz1/cmp_luasnip", -- autocompletion
         "rafamadriz/friendly-snippets", -- snippets
-        "nvim-treesitter/nvim-treesitter",
-        "onsails/lspkind.nvim", -- vs-code pictograms
     },
     config = function()
         local cmp = require("cmp")
         -- local luasnip = require("luasnip")
         local has_luasnip, luasnip = pcall(require, 'luasnip')
-        local lspkind = require("lspkind")
 
         local rhs = function(keys)
             return vim.api.nvim_replace_termcodes(keys, true, true, true)
@@ -230,7 +227,6 @@ return {
             -- autocompletion sources
             sources = cmp.config.sources({
                 { name = "luasnip" }, -- snippets
-                { name = "lazydev" },
                 { name = "nvim_lsp"},
                 { name = "buffer" }, -- text within current buffer
                 { name = "path" }, -- file system paths
@@ -315,7 +311,7 @@ return {
                     end
                 end, { 'i', 's' }),
             }),
-            -- setup lspkind for vscode pictograms in autocompletion dropdown menu
+            -- vscode-style kind icons (own lsp_kinds table) in the completion menu
             formatting = {
                 format = function(entry, vim_item)
                     -- Add custom lsp_kinds icons
