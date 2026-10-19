@@ -1,4 +1,4 @@
-command_timeout = 3600
+command_timeout = 500
 
 "$schema" = 'https://starship.rs/config-schema.json'
 
@@ -15,7 +15,7 @@ $line_break\
 $character
 """
 
-right_format = """$all"""
+right_format = "$git_commit$package$golang$nodejs$php$python$cmd_duration$jobs"
 
 palette = "catppuccin_mocha"
 
@@ -142,7 +142,8 @@ else
 fi
 echo "$GIT_REMOTE_SYMBOL "
 """
-when = 'git rev-parse --is-inside-work-tree 2> /dev/null'
+when = true
+require_repo = true
 format = "at $output"
 
 [git_branch]
@@ -213,7 +214,7 @@ disabled = true
 disabled = false
 success_symbol = '[𝘹](bold fg:green)'
 error_symbol = '[𝘹](bold fg:red)'
-vimcmd_symbol = '[](bold fg:creen)'
+vimcmd_symbol = '[](bold fg:green)'
 vimcmd_replace_one_symbol = '[](bold fg:purple)'
 vimcmd_replace_symbol = '[](bold fg:purple)'
 vimcmd_visual_symbol = '[](bold fg:lavender)'

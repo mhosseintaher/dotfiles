@@ -20,7 +20,8 @@ _create_lazy_loader() {
   local load_function="$2"
   shift 2
   local commands=("$@")
-  
+  local cmd
+
   for cmd in "${commands[@]}"; do
     eval "
     $cmd() {
@@ -76,8 +77,8 @@ nvm() {
   nvm "$@"
 }
 
-# Create lazy loaders for Node.js ecosystem tools
-_create_lazy_loader "nvm" "__load_nvm_once" node npm npx corepack pnpm yarn
+# node/npm/npx/pnpm/yarn/corepack are not wrapped: they run brew node and the
+# standalone pnpm directly. Run `nvm use <version>` to switch Node in a shell.
 
 # =============================================================================
 # PYTHON ECOSYSTEM (PYENV)
@@ -99,7 +100,7 @@ __load_pyenv_once() {
   fi
   
   # Try Homebrew installation as fallback
-  if _command_exists "/opt/homebrew/bin/pyenv"; then
+  if command -v "/opt/homebrew/bin/pyenv" >/dev/null 2>&1; then
     eval "$("/opt/homebrew/bin/pyenv" init -)"
     __PYENV_LOADED=1
     return 0
@@ -132,7 +133,7 @@ __load_rbenv_once() {
   fi
   
   # Try Homebrew installation as fallback
-  if _command_exists "/opt/homebrew/bin/rbenv"; then
+  if command -v "/opt/homebrew/bin/rbenv" >/dev/null 2>&1; then
     eval "$("/opt/homebrew/bin/rbenv" init - zsh)"
     __RBENV_LOADED=1
     return 0

@@ -4,12 +4,12 @@ alias la='ls -a --no-user'
 alias l='ls -l --no-user'
 
 # custom aliases
-alias ls='eza --color=always --group-directories-first --icons=always'
-alias lt='eza --color=always --group-directories-first --icons=always --tree --git --level=2'
+alias ls='eza --color=auto --group-directories-first --icons=auto'
+alias lt='eza --color=auto --group-directories-first --icons=auto --tree --git --level=2'
 alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
-alias .....='cd ../../..'
+alias .....='cd ../../../..'
 alias grep='grep --color=auto'
 alias egrep='egrep --color=auto'
 alias fgrep='fgrep --color=auto'
@@ -20,7 +20,7 @@ alias nowdate='date +"%d-%m-%Y"'
 
 #--------VIM---------------------
 alias vi='vim'
-alias svim='sudo vim'
+alias svim='sudoedit'
 alias vim='nvim'
 
 #-=-------Bash Commands----------
@@ -36,7 +36,7 @@ alias gss='git stash'
 alias gpop='git stash pop'
 alias gaa='git add .'
 alias ga='git add'
-alias gl='git log --onleline'
+alias gl='git log --oneline'
 alias gcm='git commit -m'
 alias gc='git commit'
 alias gpush='git push'
@@ -63,3 +63,4 @@ alias cmx='cmatrix'
 
 alias nzo="$HOME/scripts/zoxide_openfiles_nvim.sh"
 
+alias claude2='CLAUDE_CONFIG_DIR="$HOME/.claude2" claude'

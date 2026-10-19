@@ -1,12 +1,12 @@
+# Drop duplicate PATH/fpath entries (nested login shells re-run this file)
+typeset -U path fpath
+
 export LANG=en_US.UTF-8
 
-# Setting Default User makes the prompt shorter 
+# Setting Default User makes the prompt shorter
 export DEFAULT_USER="$USER"
 
-export HISTFILE="$HOME/.zsh_history"
-export HISTSIZE=200000
-export SAVEHIST=200000
-setopt APPEND_HISTORY INC_APPEND_HISTORY SHARE_HISTORY
+# History settings live in .zshrc (non-login shells need them too)
 
 #Preferred editor for local and remote sessions
 if [[ -n $SSH_CONNECTION ]]; then
@@ -14,6 +14,7 @@ if [[ -n $SSH_CONNECTION ]]; then
 else
   export EDITOR='nvim'
 fi
+export VISUAL="$EDITOR"
 
 #---------------All Paths-------------
 #export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
@@ -24,14 +25,11 @@ export MANPATH="/usr/local/man:$MANPATH"
 # GNU coreutils
 export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
 
-# ZSH
-export ZSH="$HOME/.oh-my-zsh"
-
 # Add local ~/scripts to the PATH
 export PATH="$HOME/scripts:$PATH"
 
-# Mason
-export PATH="$HOME/.local/share/nvim/mason/bin:$PATH"
+# Mason (appended so its binaries never shadow system/brew ones; Neovim adds it itself)
+export PATH="$PATH:$HOME/.local/share/nvim/mason/bin"
 
 # Tmux
 export TMUX_CONF=~/.config/tmux/tmux.conf
@@ -63,10 +61,16 @@ export FZF_TMUX_OPTS=" -p90%,70% "
 # --------------------------------------
 
 export PATH="/opt/homebrew/opt/trash/bin:$PATH"
-export PATH="/opt/homebrew/bin:$PATH"
+
+# Homebrew: static `brew shellenv` (no subprocess, and no exported FPATH;
+# .zshrc sets fpath the same way for every shell)
+export HOMEBREW_PREFIX="/opt/homebrew"
+export HOMEBREW_CELLAR="/opt/homebrew/Cellar"
+export HOMEBREW_REPOSITORY="/opt/homebrew"
+export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
+export MANPATH=":${MANPATH#:}"
+export INFOPATH="/opt/homebrew/share/info:${INFOPATH:-}"
 
 export PATH="$HOME/.local/bin:$PATH"
 
-export PATH="$PATH:$(go env GOPATH)/bin"
-
-fpath=(/Users/taher/.docker/completions $fpath)
+export PATH="$PATH:${GOPATH:-$HOME/go}/bin"
