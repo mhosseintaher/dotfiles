@@ -1,0 +1,19 @@
+# Replaces stow's built-in ignore list for this package, so keep the defaults.
+\.stow-local-ignore
+\.DS_Store
+RCS
+.+,v
+CVS
+\.\#.+
+\.cvsignore
+\.svn
+_darcs
+\.hg
+\.git
+\.gitignore
+\.gitmodules
+.+~
+\#.*\#
+^/README.*
+^/LICENSE.*
+^/COPYING
