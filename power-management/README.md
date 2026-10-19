@@ -20,7 +20,7 @@ These are applied via `setup.sh` using `sudo pmset`.
 | Setting          | Value | Meaning                                              |
 |------------------|-------|------------------------------------------------------|
 | `displaysleep`   | 10    | Display turns off after 10 min idle                  |
-| `sleep`          | 1     | System sleeps 1 min after display off (~11 min total)|
+| `sleep`          | 1     | Idle timer below `displaysleep`: sleeps once display is off (~10–11 min idle) |
 | `hibernatemode`  | 25    | Safe sleep: RAM written to disk, power fully cut     |
 | `powernap`       | 0     | No background activity during sleep                  |
 | `ttyskeepawake`  | 0     | Terminal sessions don't prevent sleep                |
@@ -34,7 +34,7 @@ These are applied via `setup.sh` using `sudo pmset`.
 | Setting          | Value | Meaning                                               |
 |------------------|-------|-------------------------------------------------------|
 | `displaysleep`   | 30    | Display turns off after 30 min idle                   |
-| `sleep`          | 60    | System sleeps 60 min after display off (90 min total) |
+| `sleep`          | 60    | System sleeps after 60 min idle (not added to `displaysleep`) |
 | `hibernatemode`  | 3     | Standard sleep: RAM stays powered, fast wake          |
 | `powernap`       | 1     | Background activity allowed (mail, backups, etc.)     |
 | `ttyskeepawake`  | 1     | Active terminal sessions keep the system awake        |
@@ -42,6 +42,8 @@ These are applied via `setup.sh` using `sudo pmset`.
 | `standby`        | 1     | Standby enabled                                       |
 
 `ttyskeepawake 1` on AC means if you have a long-running terminal process, the Mac will stay awake until it finishes.
+
+`sleep` and `displaysleep` are separate idle timers counted from your last activity; they do not add up.
 
 ### Verify current settings
 

@@ -6,7 +6,7 @@
 # This script is separate from the main install.sh to allow selective app installation.
 #
 
-set -e
+set -euo pipefail
 
 echo "🍺 Installing macOS Applications via Homebrew Casks..."
 
@@ -16,12 +16,22 @@ if ! command -v brew &> /dev/null; then
     exit 1
 fi
 
+# One cask that fails (renamed, disabled, app already present) only warns, so the rest still install
+failed=()
+brew() {
+    if [ "${1:-}" = install ]; then
+        command brew "$@" || { echo "⚠️  brew $* failed, continuing" >&2; failed+=("${*: -1}"); }
+    else
+        command brew "$@"
+    fi
+}
+
 ## Development Tools
 echo "💻 Installing Development Tools..."
 brew install --cask android-studio
 brew install --cask blender
 brew install --cask cursor
-brew install --cask docker
+brew install --cask docker-desktop
 brew install --cask figma
 # brew install --cask github-desktop  # Note: Only github@beta available
 brew install --cask obs
@@ -68,7 +78,6 @@ brew install --cask discord
 # brew install --cask microsoft-outlook  # Not found
 brew install --cask microsoft-teams
 brew install --cask signal
-brew install --cask skype
 brew install --cask slack
 brew install --cask telegram
 # brew install --cask twitter          # Now X, not commonly available
@@ -77,7 +86,7 @@ brew install --cask zoom
 
 ## Media & Entertainment
 echo "🎵 Installing Media Apps..."
-brew install --cask handbrake
+brew install --cask handbrake-app
 brew install --cask iina
 brew install --cask vlc
 # brew install --cask final-cut-pro    # App Store only
@@ -111,7 +120,7 @@ echo "⚙️ Installing System Utilities..."
 echo "📁 Installing File Management Apps..."
 brew install --cask dropbox
 # brew install --cask dropover          # Not found
-brew install --cask filezilla
+# brew install --cask filezilla        # Cask removed from Homebrew; download from filezilla-project.org
 # brew install --cask folx              # Not found
 # brew install --cask ntfs-for-mac      # Not found
 brew install --cask onedrive
@@ -136,6 +145,9 @@ echo "📱 Installing Additional Popular Apps..."
 # Add any other apps you want that are available
 
 echo "✅ Homebrew cask installation complete!"
+if [ ${#failed[@]} -gt 0 ]; then
+    echo "⚠️  These casks failed: ${failed[*]}"
+fi
 echo ""
 echo "📝 Notes:"
 echo "   • Some apps are only available via App Store or direct download"

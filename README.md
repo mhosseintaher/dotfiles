@@ -57,7 +57,7 @@ What this does: Runs a single script that installs developer tools (Xcode CLI), 
    Why: Homebrew is the package manager for macOS that installs CLI tools and apps.
 
    ```bash
-   sudo /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
    ```
 
 3. **Install Git**:  
@@ -102,7 +102,7 @@ xcode-select --install
 Install Homebrew
 
 ```bash
-sudo /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
 Install essential CLI tools  
@@ -114,12 +114,8 @@ What these do (short list):
 brew install neovim eza fzf fd stow bat zoxide zsh-autosuggestions zsh-syntax-highlighting git starship tmux nvm coreutils
 ```
 
-Add GNU coreutils to PATH  
-Why: macOS ships BSD utilities; adding GNU versions ensures consistent behavior with Linux‑style scripts.
-
-```bash
-echo 'PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"' >> ~/.zshrc
-```
+GNU coreutils on PATH  
+Why: macOS ships BSD utilities; GNU versions behave like Linux‑style scripts expect. The stowed `zsh/.zprofile` already adds them to `PATH`, so do not append it to `~/.zshrc` (after stowing, that file lives in this repo).
 
 ---
 
@@ -129,7 +125,7 @@ What is tmux? A terminal multiplexer that lets you split panes, create windows, 
 
 ```bash
 brew install tmux
-git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+git clone https://github.com/tmux-plugins/tpm ~/.config/tmux/.tmux/plugins/tpm
 ```
 
 Tip: After you start tmux, press `prefix` + `I` (usually `Ctrl-b I`) to install plugins via TPM.
@@ -188,12 +184,14 @@ Prepare your home structure
   ```
 
 Clone and stow  
-`stow .` will symlink everything inside the repo into your home directory. Run this from the repo root.
+Each top-level folder is a Stow package; `stow -t ~ <packages>` links each package's contents into your home directory. Run this from the repo root (`--restow` makes re-runs safe).
 
 ```bash
-git clone https://github.com/Sin-cy/dotfiles.git ~
+git clone https://github.com/mhosseintaher/dotfiles.git ~/dotfiles
 cd ~/dotfiles
-stow .
+stow --restow -t ~ aerospace atuin ghostty karabiner linearmouse nvim scripts sketchybar starship tmux tmux-sessionizer vim zsh
+stow --restow --no-folding -t ~ home superfile zed
+git config core.hooksPath .githooks   # enable the secret-guard pre-commit hook
 ```
 
 Stow selectively  

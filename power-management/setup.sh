@@ -8,13 +8,14 @@
 # Requires sudo.
 #
 
-set -e
+set -euo pipefail
 
 echo "⚡ Applying power management settings..."
 
 # --- Battery ---
 # display sleeps after 10 min idle
-# system sleeps 1 min after display sleep (~11 min total)
+# sleep is its own idle timer (not added to displaysleep); 1 is below displaysleep,
+# so the system sleeps as soon as the display is off (~10-11 min idle)
 # hibernatemode 25: RAM written to disk, power fully cut (aggressive battery saving)
 # powernap off: no background activity during sleep
 # ttyskeepawake off: terminal sessions don't prevent sleep on battery
@@ -31,7 +32,7 @@ echo "  ✅ Battery settings applied"
 
 # --- AC (plugged in) ---
 # display sleeps after 30 min idle
-# system sleeps 60 min after display sleep (90 min total from last activity)
+# system sleeps after 60 min idle (idle timer, not added to displaysleep: 60 min, not 90)
 # hibernatemode 3: standard sleep, RAM stays powered (fast wake)
 # powernap on: allows background activity (mail, backups, etc.) during sleep
 # ttyskeepawake on: active terminal sessions keep system awake
