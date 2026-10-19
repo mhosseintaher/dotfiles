@@ -198,6 +198,8 @@ All above with `Alt+Shift+<key>` to move windows
 
 ### **⚡ Karabiner Shortcuts (Hyper Key System)**
 
+> **Note:** Karabiner-Elements is not installed on this Mac, so none of the Hyper shortcuts below are active until it is reinstalled.
+
 **Base Hyper Key:** `Caps Lock` → Hyper when held, Escape when tapped
 
 **Direct Hyper Shortcuts:**
@@ -206,7 +208,6 @@ All above with `Alt+Shift+<key>` to move windows
 | `Hyper+T` | Open Ghostty |
 | `Hyper+B` | Open Zen Browser |
 | `Hyper+F` | Open Finder |
-| `Hyper+1` | Open DaVinci Resolve |
 | `Hyper+2` | Open OBS Studio |
 
 **Hyper+O Sublayer (Open Apps):**
@@ -219,7 +220,6 @@ All above with `Alt+Shift+<key>` to move windows
 | `Hyper+O P` | Music |
 | `Hyper+O V` | Visual Studio Code |
 | `Hyper+O C` | Google Chrome |
-| `Hyper+O W` | WezTerm |
 
 **Hyper+W Sublayer (Window Management via Raycast):**
 | Shortcut | Action |
