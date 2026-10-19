@@ -1,0 +1,1447 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dotfiles Keymap</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: one column. Terminal-style header, then the shortcut table in its own scroll box,
+   the collision report, and a learn panel. Palette: Rosé Pine Dawn (light) / Rosé Pine (dark),
+   the Ghostty theme this repo uses. Type: the terminal font for keys and headings, system UI for text. */
+:root{
+  --bg:#faf4ed; --surface:#fffaf3; --overlay:#f2e9e1; --line:#e4dcd5; --line-strong:#cdc5c7;
+  --fg:#575279; --subtle:#6e6a86; --muted:#9893a5; --link:#286983;
+  --love:#b4637a; --gold:#ea9d34; --rose:#d7827e; --pine:#286983; --foam:#56949f; --iris:#907aa9;
+  --accent:var(--iris); --btn-bg:var(--pine); --btn-fg:var(--bg);
+  --font-ui:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  --font-mono:"JetBrainsMonoNL Nerd Font","JetBrainsMono Nerd Font","JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#191724; --surface:#1f1d2e; --overlay:#26233a; --line:#2f2c44; --line-strong:#47435d;
+    --fg:#e0def4; --subtle:#908caa; --muted:#6e6a86; --link:#9ccfd8;
+    --love:#eb6f92; --gold:#f6c177; --rose:#ebbcba; --pine:#31748f; --foam:#9ccfd8; --iris:#c4a7e7;
+    --accent:var(--iris); --btn-bg:var(--iris); --btn-fg:var(--bg); color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#191724; --surface:#1f1d2e; --overlay:#26233a; --line:#2f2c44; --line-strong:#47435d;
+  --fg:#e0def4; --subtle:#908caa; --muted:#6e6a86; --link:#9ccfd8;
+  --love:#eb6f92; --gold:#f6c177; --rose:#ebbcba; --pine:#31748f; --foam:#9ccfd8; --iris:#c4a7e7;
+  --accent:var(--iris); --btn-bg:var(--iris); --btn-fg:var(--bg); color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 var(--font-ui);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
+.wrap{max-width:1180px;margin-inline:auto}
+a{color:var(--link)}
+h1,h2,h3{text-wrap:balance;margin:0}
+p{margin:0}
+code{font-family:var(--font-mono);font-size:.86em;background:var(--overlay);padding:.05em .35em;border-radius:4px;overflow-wrap:anywhere}
+kbd{display:inline-block;font:500 .86em/1.35 var(--font-mono);padding:.08em .45em;border:1px solid var(--line-strong);border-bottom-width:2px;
+  border-radius:5px;background:var(--surface);color:var(--fg);white-space:nowrap}
+.then{color:var(--subtle);margin:0 .3em;font-size:.85em}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* header */
+header.top{padding-block:40px 22px;border-bottom:1px solid var(--line);margin-bottom:28px}
+.top .row{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px}
+.eyebrow{font:500 12px/1 var(--font-mono);letter-spacing:.06em;color:var(--subtle);margin-bottom:12px}
+h1{font:700 clamp(28px,5.4vw,42px)/1.1 var(--font-mono);letter-spacing:-.015em}
+.cursor{display:inline-block;width:.56em;height:.92em;background:var(--accent);vertical-align:-.08em;margin-left:.14em}
+.summary{margin-top:12px;color:var(--subtle);font-variant-numeric:tabular-nums}
+.summary b{color:var(--fg);font-weight:600}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.legend{font-size:13px;color:var(--subtle);margin-top:16px;display:flex;flex-wrap:wrap;gap:6px 16px}
+.legend kbd{font-size:12px}
+
+.btn{font:500 14px/1.2 var(--font-ui);padding:.5rem .85rem;border-radius:8px;border:1px solid var(--line-strong);
+  background:var(--surface);color:var(--fg);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--btn-bg);color:var(--btn-fg);border-color:transparent}
+
+.block{margin-bottom:56px;scroll-margin-top:16px}
+h2{font:700 21px/1.2 var(--font-mono);margin-bottom:6px}
+.lede{color:var(--subtle);margin-bottom:16px;max-width:72ch}
+
+/* toolbar */
+.toolbar{display:grid;gap:12px;margin-bottom:12px}
+.search{position:relative}
+.search .pr{position:absolute;left:13px;top:50%;transform:translateY(-50%);font:700 15px var(--font-mono);color:var(--accent);pointer-events:none}
+.search input{width:100%;font:15px var(--font-ui);padding:.7rem 2.8rem .7rem 2.1rem;border-radius:10px;border:1px solid var(--line-strong);
+  background:var(--surface);color:var(--fg)}
+.search input::placeholder{color:var(--subtle)}
+.search input:focus{outline:2px solid var(--accent);outline-offset:1px}
+.search .hint{position:absolute;right:11px;top:50%;transform:translateY(-50%);pointer-events:none}
+.chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.lbl{font:600 11px var(--font-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--subtle);margin-right:4px}
+.chip{font:500 13px/1.2 var(--font-ui);padding:.34rem .7rem;border-radius:999px;border:1px solid var(--line-strong);background:transparent;
+  color:var(--fg);cursor:pointer;display:inline-flex;align-items:center;white-space:nowrap}
+.chip:hover{border-color:var(--accent)}
+.chip .n{color:var(--subtle);font-variant-numeric:tabular-nums;margin-left:5px;font-size:12px}
+.chip[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.chip[aria-pressed="true"] .n{color:inherit;opacity:.7}
+.metarow{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 16px;align-items:center;font-size:13px;color:var(--subtle)}
+.toggle{display:inline-flex;gap:7px;align-items:center;cursor:pointer}
+.toggle input{accent-color:var(--accent);margin:0}
+#count{font-variant-numeric:tabular-nums}
+#count b{color:var(--fg)}
+.linkbtn{all:unset;cursor:pointer;color:var(--link);text-decoration:underline;text-underline-offset:2px}
+.linkbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* table */
+.tbl{overflow:auto;max-height:min(72vh,820px);border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{width:100%;border-collapse:separate;border-spacing:0;min-width:800px;font-size:14px}
+thead th{position:sticky;top:0;z-index:1;background:var(--overlay);text-align:left;padding:0;border-bottom:1px solid var(--line)}
+th button{all:unset;box-sizing:border-box;display:block;width:100%;padding:.6rem .75rem;font:600 11px var(--font-ui);letter-spacing:.08em;
+  text-transform:uppercase;color:var(--subtle);cursor:pointer;white-space:nowrap}
+th button:hover{color:var(--fg)}
+th button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+th[aria-sort] button{color:var(--fg)}
+.ar{margin-left:4px;font-size:10px}
+td{padding:.5rem .75rem;border-bottom:1px solid var(--line);vertical-align:top}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover td{background:color-mix(in srgb,var(--overlay) 65%,transparent)}
+td.k,td.app{white-space:nowrap}
+td.ctx{color:var(--subtle);font-size:13px}
+td.src{font:12px var(--font-mono);color:var(--subtle);white-space:nowrap}
+tr.is-dead td,tr.is-off td{opacity:.62}
+tr.is-dead td.act{text-decoration:line-through;text-decoration-color:var(--love)}
+td.empty{padding:2rem 1rem;text-align:center;color:var(--subtle);white-space:normal}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px;vertical-align:1px;flex:none}
+.h-pine{background:var(--pine)} .h-foam{background:var(--foam)} .h-gold{background:var(--gold)} .h-love{background:var(--love)}
+.h-rose{background:var(--rose)} .h-iris{background:var(--iris)} .h-muted{background:var(--muted)}
+.badge{display:inline-block;font:600 11px/1.4 var(--font-ui);letter-spacing:.02em;padding:0 7px;border-radius:999px;border:1px solid;
+  margin-left:7px;white-space:nowrap;color:var(--fg);text-decoration:none;vertical-align:1px}
+.b-dead,.b-bug{border-color:var(--love);background:color-mix(in srgb,var(--love) 12%,transparent)}
+.b-off{border-color:var(--line-strong);color:var(--subtle)}
+.b-clash{border-color:var(--gold);background:color-mix(in srgb,var(--gold) 16%,transparent)}
+a.b-clash:hover{background:color-mix(in srgb,var(--gold) 30%,transparent)}
+
+@media (max-width:720px){
+  table,thead,tbody{display:block}
+  table{min-width:0}
+  thead{background:var(--overlay);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:1}
+  thead tr{display:flex;flex-wrap:wrap}
+  thead th{position:static;border:0;background:none}
+  th button{padding:.55rem .6rem}
+  tbody tr{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"k app" "act act" "ctx src";gap:4px 12px;
+    padding:.7rem .8rem;border-bottom:1px solid var(--line)}
+  tbody tr:last-child{border-bottom:0}
+  td{padding:0;border:0}
+  td.k{grid-area:k;white-space:normal}
+  td.app{grid-area:app;justify-self:end;font-size:13px}
+  td.act{grid-area:act}
+  td.ctx{grid-area:ctx}
+  td.src{grid-area:src;justify-self:end;align-self:end}
+  tbody tr:hover td{background:none}
+  td.empty{grid-column:1/-1}
+}
+
+/* collisions */
+.sevbar{margin-bottom:6px}
+.clash{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:12px 32px;padding:20px 12px;margin-inline:-12px;
+  border-top:1px solid var(--line);scroll-margin-top:16px;border-radius:2px}
+.clash:target{background:color-mix(in srgb,var(--accent) 11%,transparent)}
+.clash h3{font:600 16px/1.35 var(--font-ui);margin-top:10px}
+.sev{display:inline-flex;align-items:center;gap:6px;font:600 11px/1.5 var(--font-ui);letter-spacing:.08em;text-transform:uppercase;
+  padding:1px 9px;border-radius:999px;border:1px solid color-mix(in srgb,var(--s) 55%,transparent);background:color-mix(in srgb,var(--s) 15%,transparent)}
+.sev::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--s)}
+.sev-high{--s:var(--love)} .sev-medium{--s:var(--gold)} .sev-low{--s:var(--foam)} .sev-latent{--s:var(--muted)}
+.keys{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.keylink{all:unset;cursor:pointer;border-radius:5px}
+.keylink:hover kbd{border-color:var(--accent)}
+.keylink:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.who{list-style:none;margin:0;padding:0;display:grid;gap:9px}
+.who li{display:grid;grid-template-columns:4.4rem minmax(0,1fr);gap:10px;align-items:baseline;font-size:14px}
+.tag{font:600 10.5px/1.6 var(--font-ui);letter-spacing:.06em;text-transform:uppercase;text-align:center;border-radius:4px;
+  border:1px solid var(--line-strong);color:var(--subtle)}
+.tag.win{color:var(--fg);border-color:var(--foam);background:color-mix(in srgb,var(--foam) 20%,transparent)}
+.tag.lose{color:var(--fg);border-color:color-mix(in srgb,var(--love) 65%,transparent)}
+.tag.wait{color:var(--fg);border-color:var(--gold)}
+.who .app{font-weight:600;white-space:nowrap}
+.who .c{color:var(--subtle)}
+.who .s{font:12px var(--font-mono);color:var(--subtle);overflow-wrap:anywhere}
+.why{color:var(--subtle);font-size:14px;margin-top:12px;max-width:68ch}
+.fix{margin-top:10px;font-size:14px;max-width:68ch}
+.fix b{font:600 11px var(--font-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--subtle);margin-right:6px}
+@media (max-width:760px){.clash{grid-template-columns:1fr}}
+details.fold{margin-top:24px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+details.fold summary{cursor:pointer;padding:.85rem 1rem;font-weight:600}
+details.fold summary span{color:var(--subtle);font-weight:400}
+#rulesBox{margin:0 0 16px}
+.rules{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px 28px;margin:0;padding:0 1rem 1.1rem;list-style:none}
+.rules li{font-size:14px;color:var(--subtle);border-top:1px solid var(--line);padding-top:10px}
+.rules b{display:block;color:var(--fg);font-weight:600;margin-bottom:3px}
+.harm{display:grid;grid-template-columns:minmax(9rem,auto) minmax(0,1fr);gap:10px 20px;padding:0 1rem 1.1rem;margin:0}
+.harm dt{white-space:nowrap}
+.harm dd{margin:0;color:var(--subtle);font-size:14px}
+@media (max-width:560px){.harm{grid-template-columns:1fr;gap:4px}.harm dd{margin-bottom:10px}}
+
+/* tutorial */
+h3.sub{font:700 16px var(--font-mono);margin:28px 0 12px}
+.stack{list-style:none;margin:0;padding:0;border:1px solid var(--line);border-radius:10px;background:var(--surface);max-width:880px}
+.stack li{display:grid;grid-template-columns:1.4rem 7.5rem minmax(8rem,auto) minmax(0,1fr);gap:4px 14px;align-items:baseline;padding:.6rem 1rem;border-top:1px solid var(--line);font-size:14px}
+.stack li:first-child{border-top:0}
+.stack .ix{font:600 12px var(--font-mono);color:var(--subtle)}
+.stack .nm{font-weight:600;white-space:nowrap}
+.stack .jb{color:var(--subtle)}
+@media (max-width:640px){.stack li{grid-template-columns:1.4rem minmax(0,1fr)}.stack .md,.stack .jb{grid-column:2}}
+.prog{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin:28px 0 12px;font-size:13px;color:var(--subtle)}
+.prog b{color:var(--fg)}
+.bar{flex:1 1 180px;max-width:360px;height:8px;border-radius:999px;background:var(--overlay);overflow:hidden}
+.bar span{display:block;height:100%;width:0;background:var(--foam);transition:width .3s}
+.lessons{list-style:none;margin:0;padding:0;display:grid;gap:10px;max-width:880px}
+.lesson details{border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.lesson summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:14px;padding:.75rem 1rem}
+.lesson summary::-webkit-details-marker{display:none}
+.lesson summary::after{content:"▸";color:var(--subtle);font-size:12px}
+.lesson details[open] summary::after{content:"▾"}
+.lesson .num{font:700 14px var(--font-mono);color:var(--accent)}
+.lesson.is-done .num{color:var(--subtle)}
+.lesson .tt{flex:1;min-width:0;font-weight:600;line-height:1.35}
+.lesson .day{display:block;font:500 11px/1.6 var(--font-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--subtle)}
+.lesson .tag{padding:0 8px}
+.lesson .body{padding:2px 1rem 1rem;display:grid;gap:14px}
+.lwhy,.drill,.note{max-width:70ch}
+.lkeys{display:grid;grid-template-columns:auto minmax(0,1fr);gap:7px 14px;margin:0;font-size:14px;align-items:baseline}
+.lkeys dt{white-space:nowrap}
+.lkeys dd{margin:0;color:var(--subtle)}
+.lesson h4{font:600 11px var(--font-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--subtle);margin:0 0 -6px}
+.drill{margin:0;padding-left:1.3rem;display:grid;gap:6px;font-size:14px}
+.note{font-size:13px;color:var(--subtle);border-left:3px solid var(--gold);padding-left:10px}
+.lfoot{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;border-top:1px dashed var(--line-strong);padding-top:12px}
+.lfoot .toggle{font-size:14px}
+.miss{font-size:13px;color:var(--love)}
+/* recall drill */
+.flash{border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:20px;max-width:700px;display:grid;gap:16px}
+.ctrls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.flash{grid-template-columns:minmax(0,1fr)}
+.ctrls label{font-size:13px;color:var(--subtle);display:inline-flex;gap:6px;align-items:center;max-width:100%;min-width:0}
+.ctrls select{min-width:0;flex:1 1 auto}
+select{font:14px var(--font-ui);padding:.4rem .6rem;border-radius:8px;border:1px solid var(--line-strong);background:var(--bg);color:var(--fg);max-width:100%}
+.prompt{min-height:5.6rem;display:grid;align-content:center;gap:8px}
+.prompt .big{font-size:21px;font-weight:600;line-height:1.3}
+.prompt .big kbd,.answer kbd{font-size:20px}
+.prompt .m,.answer .m{font-size:13px;color:var(--subtle)}
+.answer{border-top:1px dashed var(--line-strong);padding-top:14px;font-size:18px;display:grid;gap:6px}
+.btns{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.tally{margin-left:auto;font-size:13px;color:var(--subtle);font-variant-numeric:tabular-nums}
+footer{border-top:1px solid var(--line);padding-top:18px;color:var(--subtle);font-size:13px;display:grid;gap:6px}
+
+@media print{
+  :root:not(#print){
+    --bg:#fff; --surface:#fff; --overlay:#f2efe9; --line:#ddd; --line-strong:#bbb; --fg:#222; --subtle:#555; --muted:#999; --link:#222;
+    --love:#b4637a; --gold:#c9842a; --rose:#d7827e; --pine:#286983; --foam:#3f7f89; --iris:#907aa9; color-scheme:light;
+  }
+  body{font-size:11px;padding:0}
+  .toolbar,.actions,.sevbar,.flash,.no-print,.lfoot,#progReset{display:none!important}
+  .tbl{max-height:none;overflow:visible;border:0}
+  table{min-width:0;font-size:10.5px}
+  thead th{position:static}
+  td{padding:.25rem .4rem}
+  tr,.clash,.qs section{break-inside:avoid}
+  .block{margin-bottom:24px}
+  header.top{padding-block:0 12px}
+  tbody tr:hover td{background:none}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <p class="eyebrow">~/dotfiles · every key binding, one place</p>
+    <div class="row">
+      <div>
+        <h1>Dotfiles Keymap<span class="cursor" aria-hidden="true"></span></h1>
+        <p class="summary" id="summary"></p>
+      </div>
+      <div class="actions">
+        <a class="btn" href="#tutorial">Tutorial</a>
+        <a class="btn" href="#cheatsheet">Cheatsheet</a>
+        <a class="btn" href="#collisions">Collisions</a>
+        <button class="btn" id="theme" type="button">Theme</button>
+      </div>
+    </div>
+    <p class="legend">
+      <span><kbd>Alt</kbd> = ⌥ Option</span><span><kbd>Cmd</kbd> = ⌘</span>
+      <span><kbd>Hyper</kbd> = hold Caps Lock (Karabiner)</span><span><kbd>prefix</kbd> = Ctrl+B (tmux)</span>
+      <span><kbd>&lt;leader&gt;</kbd> = Space (Neovim)</span><span><kbd>A</kbd><span class="then">→</span><kbd>B</kbd> = press A, then B</span>
+    </p>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="block" id="tutorial" aria-labelledby="h-tut">
+    <h2 id="h-tut">Tutorial</h2>
+    <p class="lede">A path through the setup, one layer at a time. For each lesson, read the keys, do the drill, quiz yourself, then mark it done. One lesson a day is plenty. Progress and missed keys are saved in this browser.</p>
+    <h3 class="sub">The stack: a key goes to the first layer that wants it</h3>
+    <ol class="stack" id="stack"></ol>
+    <div class="prog"><div class="bar" aria-hidden="true"><span id="progBar"></span></div><span id="progTxt" aria-live="polite"></span><button class="linkbtn" id="progReset" type="button">Reset progress</button></div>
+    <ol class="lessons" id="lessons"></ol>
+    <h3 class="sub">Recall drill</h3>
+    <p class="lede">Quiz one lesson, the keys you missed, or everything. A missed key stays in “Keys you missed” until you get it right.</p>
+    <div class="flash" id="flash">
+      <div class="ctrls">
+        <label for="deck">Deck <select id="deck"></select></label>
+        <label for="dir">Show <select id="dir">
+          <option value="a2k">Action, guess the key</option>
+          <option value="k2a">Key, guess the action</option>
+        </select></label>
+      </div>
+      <div class="prompt" id="prompt" aria-live="polite"></div>
+      <div class="answer" id="answer" hidden></div>
+      <div class="btns">
+        <button class="btn primary" id="reveal" type="button">Reveal</button>
+        <button class="btn primary" id="got" type="button" hidden>Got it</button>
+        <button class="btn" id="missed" type="button" hidden>Missed it</button>
+        <button class="btn" id="next" type="button">Skip</button>
+        <span class="tally" id="tally"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="cheatsheet" aria-labelledby="h-short">
+    <h2 id="h-short">Cheatsheet</h2>
+    <p class="lede">Your second memory: every binding, read from the live configs. Press <kbd>/</kbd> anywhere, then type a key (<code>ctrl+h</code>), an action (<code>split</code>) or an app. Struck-through rows are bound but never fire because something else takes the key first.</p>
+    <details class="fold" id="rulesBox" open>
+      <summary>Points to follow <span id="rulesCount"></span></summary>
+      <ul class="rules" id="rules"></ul>
+    </details>
+    <div class="toolbar">
+      <div class="search">
+        <span class="pr" aria-hidden="true">❯</span>
+        <label for="q" class="no-print" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Search shortcuts</label>
+        <input id="q" type="search" autocomplete="off" spellcheck="false" placeholder="Search keys, actions, apps…  e.g. ctrl+h, split, harpoon">
+        <kbd class="hint" aria-hidden="true">/</kbd>
+      </div>
+      <div class="chips" id="scopeChips" role="group" aria-label="Scope"><span class="lbl">Scope</span></div>
+      <div class="chips" id="appChips" role="group" aria-label="Apps"><span class="lbl">Apps</span></div>
+      <div class="metarow">
+        <span id="count" aria-live="polite"></span>
+        <span class="chips">
+          <label class="toggle" for="essOnly"><input type="checkbox" id="essOnly"> Essentials only</label>
+          <label class="toggle" for="hideDead"><input type="checkbox" id="hideDead"> Hide shadowed and disabled</label>
+          <button class="linkbtn" id="reset" type="button">Reset filters</button>
+        </span>
+      </div>
+    </div>
+    <div class="tbl">
+      <table>
+        <thead><tr id="thead"></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="block" id="collisions" aria-labelledby="h-clash">
+    <h2 id="h-clash">Collisions</h2>
+    <p class="lede">The same key bound in two places that can be live at the same moment. OS-level tools (AeroSpace, Karabiner, macOS) see a key before any app does; inside the terminal, tmux sees it before Neovim or the shell. Click a key to find it in the table.</p>
+    <div class="chips sevbar" id="sevChips" role="group" aria-label="Severity"><span class="lbl">Severity</span></div>
+    <div id="clashList"></div>
+    <details class="fold" id="harmless">
+      <summary>Same key, different context <span id="harmCount"></span></summary>
+      <dl class="harm" id="harmList"></dl>
+    </details>
+  </section>
+
+  <footer>
+    <p>Built from the configs in ~/dotfiles on 19 Oct 2026. TickTick rows are app defaults copied from keyboard-shortcuts-analysis.md; tmux plugin rows are plugin defaults.</p>
+    <p>To change the page, edit the data arrays at the top of the script: <code>SHORTCUTS</code>, <code>COLLISIONS</code>, <code>LESSONS</code> and <code>RULES</code>. Tutorial progress and missed keys live in this browser only.</p>
+  </footer>
+</main>
+
+<script>
+/* ---------------------------------------------------------------------------------------------
+   SHORTCUTS: one row per binding → [key, app, context, action, source, flags]
+   source = a key of SRC (below) or a literal path.  flags (space separated, optional):
+     q = essential ("Essentials only" filter) · dead = bound but shadowed · off = disabled · bug = broken target
+     c:<id> = involved in collision <id> (see COLLISIONS)
+   --------------------------------------------------------------------------------------------- */
+const SHORTCUTS = [
+  // Neovim · core/keymaps.lua
+  ['<leader>pv','Neovim','normal','Open file explorer (netrw :Ex)','nk','q'],
+  ['J','Neovim','visual','Move selection down a line','nk'],
+  ['K','Neovim','visual','Move selection up a line','nk'],
+  ['J','Neovim','normal','Join lines, keep cursor in place','nk'],
+  ['Ctrl+D','Neovim','normal','Half-page down, cursor centered','nk','q'],
+  ['Ctrl+U','Neovim','normal','Half-page up, cursor centered','nk','q'],
+  ['n','Neovim','normal','Next search match, centered','nk'],
+  ['N','Neovim','normal','Previous search match, centered','nk'],
+  ['<','Neovim','visual','Outdent, keep selection','nk'],
+  ['>','Neovim','visual','Indent, keep selection','nk'],
+  ['<leader>p','Neovim','visual','Paste over selection, keep register','nk'],
+  ['p','Neovim','visual','Paste without yanking the replaced text','nk'],
+  ['<leader>Y','Neovim','normal','Yank line to system clipboard','nk'],
+  ['<leader>d','Neovim','normal / visual','Delete into black-hole register','nk'],
+  ['Ctrl+C','Neovim','insert','Escape to normal mode','nk'],
+  ['Ctrl+C','Neovim','normal','Clear search highlight','nk'],
+  ['Q','Neovim','normal','Disabled (no Ex mode)','nk'],
+  ['Ctrl+F','Neovim','normal','tmux-sessionizer in a new tmux window','nk','q c:nvim-builtins'],
+  ['x','Neovim','normal','Delete char without yanking','nk'],
+  ['<leader>s','Neovim','normal','Replace word under cursor in whole file','nk','c:leader-s'],
+  ['<leader>x','Neovim','normal','Make current file executable (chmod +x)','nk','c:leader-pfx'],
+  ['<leader>to','Neovim','normal','New tab','nk'],
+  ['<leader>tx','Neovim','normal','Close tab','nk'],
+  ['<leader>tn','Neovim','normal','Next tab','nk'],
+  ['<leader>tp','Neovim','normal','Previous tab','nk'],
+  ['<leader>tf','Neovim','normal','Open current buffer in a new tab','nk'],
+  ['<leader>sv','Neovim','normal','Split window vertically','nk','q'],
+  ['<leader>sh','Neovim','normal','Split window horizontally','nk','dead c:leader-sh'],
+  ['<leader>se','Neovim','normal','Make splits equal size','nk'],
+  ['<leader>sx','Neovim','normal','Close current split','nk'],
+  ['<leader>fp','Neovim','normal','Copy file path to clipboard','nk'],
+  ['<leader>lx','Neovim','normal','Toggle LSP diagnostics (virtual text)','nk'],
+  ['<leader>lq','Neovim','normal','Diagnostics to location list','nk'],
+  ['Esc Esc','Neovim','terminal','Leave terminal mode','nk'],
+  ['← ↓ ↑ →','Neovim','normal','Disabled: reminds you to use h j k l','nk'],
+  // Neovim · plugins/init.lua
+  ['Ctrl+H','Neovim','normal','Split left, or tmux pane at the edge (vim-tmux-navigator)','np','q'],
+  ['Ctrl+J','Neovim','normal','Split down, or tmux pane at the edge','np'],
+  ['Ctrl+K','Neovim','normal','Split up, or tmux pane at the edge','np'],
+  ['Ctrl+L','Neovim','normal','Split right, or tmux pane at the edge','np'],
+  ['Ctrl+\\','Neovim','normal','Previous split or tmux pane','np'],
+  ['<leader>sm','Neovim','normal','Maximize / restore split (vim-maximizer)','np'],
+  [']t','Neovim','normal','Next TODO comment','np'],
+  ['[t','Neovim','normal','Previous TODO comment','np'],
+  // Neovim · git
+  ['<leader>gg','Neovim','normal','Git status (fugitive)','ng','q'],
+  ['<leader>gP','Neovim','normal (fugitive buffer)','git push','ng'],
+  ['<leader>gp','Neovim','normal (fugitive buffer)','git pull --rebase','ng'],
+  ['<leader>gt','Neovim','normal (fugitive buffer)','Type :Git push -u origin …','ng'],
+  [']h','Neovim','normal (git file)','Next hunk','ng'],
+  ['[h','Neovim','normal (git file)','Previous hunk','ng'],
+  ['<leader>gs','Neovim','normal / visual','Stage hunk (or selected lines); on a staged hunk, unstage it','ng'],
+  ['<leader>gr','Neovim','normal / visual','Reset hunk (or selected lines)','ng'],
+  ['<leader>gS','Neovim','normal','Stage whole buffer','ng'],
+  ['<leader>gR','Neovim','normal','Reset whole buffer','ng'],
+  ['<leader>gp','Neovim','normal (git file)','Preview hunk','ng'],
+  ['<leader>gbl','Neovim','normal','Blame line (full)','ng'],
+  ['<leader>gB','Neovim','normal','Toggle inline line blame','ng'],
+  ['<leader>gd','Neovim','normal','Diff this','ng'],
+  ['<leader>gD','Neovim','normal','Diff against last commit (~)','ng'],
+  ['ih','Neovim','op-pending / visual','Select hunk (text object)','ng'],
+  ['<leader>lg','Neovim','normal','LazyGit (plugin set enabled = false)','ng','off'],
+  // Neovim · harpoon
+  ['<leader>a','Neovim','normal','Harpoon: add file','nh','q'],
+  ['Ctrl+E','Neovim','normal','Harpoon: toggle quick menu','nh','q c:nvim-builtins'],
+  ['Ctrl+Y','Neovim','normal','Harpoon: go to file 1','nh','c:nvim-builtins'],
+  ['Ctrl+T','Neovim','normal','Harpoon: go to file 2','nh','c:nvim-builtins'],
+  ['Ctrl+N','Neovim','normal','Harpoon: go to file 3','nh'],
+  ['Ctrl+S','Neovim','normal','Harpoon: go to file 4','nh'],
+  ['Ctrl+Shift+P','Neovim','normal','Harpoon: previous file in list (fails inside tmux)','nh','bug c:ctrl-shift'],
+  ['Ctrl+Shift+N','Neovim','normal','Harpoon: next file in list (fails inside tmux)','nh','bug c:ctrl-shift'],
+  // Neovim · telescope
+  ['<leader>sh','Neovim','normal','Search help tags','nt','c:leader-sh'],
+  ['<leader>sk','Neovim','normal','Search keymaps','nt'],
+  ['<leader>sf','Neovim','normal','Search files','nt','q'],
+  ['<leader>ss','Neovim','normal','Pick a Telescope picker','nt'],
+  ['<leader>sw','Neovim','normal','Grep word under cursor','nt'],
+  ['<leader>sg','Neovim','normal','Live grep','nt','q'],
+  ['<leader>sd','Neovim','normal','Search diagnostics','nt'],
+  ['<leader>sr','Neovim','normal','Resume last search','nt'],
+  ['<leader>s.','Neovim','normal','Recent files','nt'],
+  ['<leader>s/','Neovim','normal','Live grep in open files','nt'],
+  ['<leader>sn','Neovim','normal','Search Neovim config files','nt'],
+  ['<leader>sWc','Neovim','normal','Grep WORD under cursor','nt'],
+  ['<leader><leader>','Neovim','normal','Switch buffer','nt','q'],
+  ['Ctrl+P','Neovim','normal','Git files (Telescope)','nt','q'],
+  ['<leader>ths','Neovim','normal','Theme switcher','nt'],
+  ['Ctrl+J','Neovim','telescope prompt','Next result','nt'],
+  ['Ctrl+K','Neovim','telescope prompt','Previous result','nt'],
+  // Neovim · treesitter, trouble
+  ['Ctrl+Space','Neovim','normal / visual','Start or grow treesitter selection','ns'],
+  ['<leader>xw','Neovim','normal','Trouble: workspace diagnostics','nr'],
+  ['<leader>xd','Neovim','normal','Trouble: document diagnostics','nr'],
+  ['<leader>xq','Neovim','normal','Trouble: quickfix list','nr'],
+  ['<leader>xl','Neovim','normal','Trouble: location list','nr'],
+  ['<leader>xt','Neovim','normal','Trouble: TODOs','nr'],
+  // Neovim · LSP (buffer-local)
+  ['gd','Neovim','normal (LSP buffer)','Go to definition (Telescope)','nl','q'],
+  ['gR','Neovim','normal (LSP buffer)','References (Telescope)','nl'],
+  ['gD','Neovim','normal (LSP buffer)','Go to declaration','nl'],
+  ['gi','Neovim','normal (LSP buffer)','Implementations (Telescope)','nl','c:nvim-builtins'],
+  ['gt','Neovim','normal (LSP buffer)','Type definitions (Telescope)','nl','c:nvim-builtins'],
+  ['K','Neovim','normal (LSP buffer)','Hover documentation','nl','q'],
+  ['<leader>vca','Neovim','normal / visual (LSP)','Code actions','nl'],
+  ['<leader>rn','Neovim','normal (LSP buffer)','Rename symbol','nl'],
+  ['<leader>lD','Neovim','normal (LSP buffer)','Buffer diagnostics (Telescope)','nl'],
+  ['<leader>ld','Neovim','normal (LSP buffer)','Line diagnostics float','nl'],
+  ['<leader>lrs','Neovim','normal (LSP buffer)','Restart LSP','nl'],
+  ['Ctrl+H','Neovim','insert (LSP buffer)','Signature help','nl'],
+  // Neovim · completion (nvim-cmp)
+  ['Ctrl+E','Neovim','insert (completion)','Close completion menu','nc'],
+  ['Ctrl+D','Neovim','insert (completion)','Close docs window','nc'],
+  ['Ctrl+F','Neovim','insert (completion)','Scroll docs down','nc'],
+  ['Ctrl+B','Neovim','insert (completion)','Scroll docs up','nc'],
+  ['Ctrl+J','Neovim','insert (completion)','Next item','nc'],
+  ['Ctrl+K','Neovim','insert (completion)','Previous item','nc'],
+  ['Ctrl+N','Neovim','insert (completion)','Next item','nc'],
+  ['Ctrl+P','Neovim','insert (completion)','Previous item','nc'],
+  ['Ctrl+Y','Neovim','insert (completion)','Confirm selected item','nc'],
+  ['Enter','Neovim','insert (completion)','Confirm selected item','nc'],
+  ['Tab','Neovim','insert (completion)','Confirm if only one item, else next; smart indent','nc'],
+  ['Shift+Tab','Neovim','insert (completion)','Previous item, snippet back, or dedent','nc'],
+  // Neovim · format, lint, mini, misc
+  ['<leader>f','Neovim','normal / visual','Format file or range (conform)','nf','q c:leader-pfx'],
+  ['<leader>l','Neovim','normal','Lint current file','nn','c:leader-pfx'],
+  ['<leader>wr','Neovim','normal','Trim trailing whitespace','nm'],
+  ['<leader>fj','Neovim','normal / visual','Join arguments onto one line','nm'],
+  ['<leader>fk','Neovim','normal / visual','Split arguments onto lines','nm'],
+  ['gcc','Neovim','normal','Toggle comment on line (mini.comment)','nm','q'],
+  ['gc','Neovim','normal / visual','Comment operator / selection','nm'],
+  ['<leader>xe','Neovim','normal / visual','Emmet: wrap with abbreviation','ne'],
+  ['<leader>u','Neovim','normal','Toggle undo tree','nu'],
+  ['zR','Neovim','normal','Open all folds (ufo)','no'],
+  ['zM','Neovim','normal','Close all folds (ufo)','no'],
+
+  // Vim
+  ['jj','Vim','insert','Escape to normal mode','v','q'],
+
+  // tmux
+  ['Ctrl+B','tmux','any pane','Prefix key','t','q'],
+  ['prefix + r','tmux','prefix','Reload tmux.conf','t'],
+  ['prefix + |','tmux','prefix','Split side by side (keeps cwd)','t','q'],
+  ['prefix + -','tmux','prefix','Split top / bottom (keeps cwd)','t','q'],
+  ['prefix + v','tmux','prefix','Enter copy mode','t'],
+  ['prefix + f','tmux','prefix','tmux-sessionizer in a popup (80% × 70%)','t','q'],
+  ['prefix + h','tmux','prefix (repeatable)','Resize pane left by 5','t','c:tmux-defaults'],
+  ['prefix + j','tmux','prefix (repeatable)','Resize pane down by 5','t'],
+  ['prefix + k','tmux','prefix (repeatable)','Resize pane up by 5','t'],
+  ['prefix + l','tmux','prefix (repeatable)','Resize pane right by 5','t','c:tmux-defaults'],
+  ['prefix + m','tmux','prefix (repeatable)','Zoom / unzoom pane','t','q c:tmux-defaults'],
+  ['prefix + n','tmux','prefix','New named session (prompt)','t','c:tmux-defaults'],
+  ['prefix + o','tmux','prefix','Session picker (tmux-sessionx)','t','c:tmux-defaults'],
+  ['v','tmux','copy mode','Begin selection','t'],
+  ['y','tmux','copy mode','Copy selection','t'],
+  ['Alt+L','tmux','root (no prefix)','In a shell: clear the screen; other programs get Alt+L','t','dead c:alt-lk'],
+  ['Alt+K','tmux','root (no prefix)','In a shell: clear the screen and scrollback; other programs get Alt+K','t','dead c:alt-lk'],
+  ['Ctrl+H','tmux','root (no prefix)','Pane left; passes the key on when vim, nvim or fzf is in front','t','c:tmux-root'],
+  ['Ctrl+J','tmux','root (no prefix)','Pane down, or pass to vim / nvim / fzf','t','c:fzf-widget'],
+  ['Ctrl+K','tmux','root (no prefix)','Pane up, or pass to vim / nvim / fzf','t','c:fzf-widget'],
+  ['Ctrl+L','tmux','root (no prefix)','Pane right, or pass to vim / nvim / fzf','t','c:cmd-l'],
+  ['Ctrl+\\','tmux','root (no prefix)','Last pane, or pass to vim / nvim / fzf','t'],
+  ['Ctrl+H/J/K/L','tmux','copy mode','Select the pane in that direction (Ctrl+\\ last pane)','t'],
+  ['prefix + Ctrl+L','tmux','prefix','Send Ctrl+L (clear the screen)','t','q'],
+  ['prefix + Ctrl+S','tmux','prefix','Save sessions (resurrect)','tp'],
+  ['prefix + Ctrl+R','tmux','prefix','Restore sessions (resurrect)','tp'],
+  ['prefix + I','tmux','prefix','Install plugins (tpm)','tp'],
+  ['prefix + U','tmux','prefix','Update plugins (tpm)','tp'],
+  ['prefix + Alt+U','tmux','prefix','Remove unlisted plugins (tpm)','tp'],
+
+  // AeroSpace · main mode
+  ['Alt+/','AeroSpace','main mode','Tiles layout (toggle orientation)','a'],
+  ['Alt+,','AeroSpace','main mode','Accordion layout (toggle orientation)','a'],
+  ['Alt+H','AeroSpace','main mode','Focus window left','a','q'],
+  ['Alt+J','AeroSpace','main mode','Focus window down','a'],
+  ['Alt+K','AeroSpace','main mode','Focus window up','a','c:alt-lk'],
+  ['Alt+L','AeroSpace','main mode','Focus window right','a','c:alt-lk'],
+  ['Alt+Shift+H','AeroSpace','main mode','Move window left','a','q'],
+  ['Alt+Shift+J','AeroSpace','main mode','Move window down','a'],
+  ['Alt+Shift+K','AeroSpace','main mode','Move window up','a'],
+  ['Alt+Shift+L','AeroSpace','main mode','Move window right','a'],
+  ['Alt+1','AeroSpace','main mode','Workspace 1','a','c:alt-num'],
+  ['Alt+2','AeroSpace','main mode','Workspace 2','a','c:alt-num'],
+  ['Alt+3','AeroSpace','main mode','Workspace 3','a','c:alt-num'],
+  ['Alt+B','AeroSpace','main mode','Workspace B (browsers)','a','q'],
+  ['Alt+C','AeroSpace','main mode','Workspace C (VS Code lands here)','a','c:alt-c'],
+  ['Alt+D','AeroSpace','main mode','Workspace D (TablePlus)','a'],
+  ['Alt+E','AeroSpace','main mode','Workspace E (TickTick)','a'],
+  ['Alt+F','AeroSpace','main mode','Workspace F (Finder)','a'],
+  ['Alt+M','AeroSpace','main mode','Workspace M (Telegram, Slack, Mail)','a'],
+  ['Alt+N','AeroSpace','main mode','Workspace N (Obsidian, Notion)','a'],
+  ['Alt+P','AeroSpace','main mode','Workspace P (Calendar)','a'],
+  ['Alt+I','AeroSpace','main mode','Workspace I (ClickUp)','a'],
+  ['Alt+T','AeroSpace','main mode','Workspace T (Ghostty)','a','q'],
+  ['Alt+V','AeroSpace','main mode','Workspace V (VPN apps)','a'],
+  ['Alt+X','AeroSpace','main mode','Workspace X (Cursor lands here)','a'],
+  ['Alt+Shift+1','AeroSpace','main mode','Send window to workspace 1 and follow','a'],
+  ['Alt+Shift+2','AeroSpace','main mode','Send window to workspace 2 and follow','a'],
+  ['Alt+Shift+3','AeroSpace','main mode','Send window to workspace 3 and follow','a'],
+  ['Alt+Shift+B','AeroSpace','main mode','Send window to workspace B and follow','a'],
+  ['Alt+Shift+C','AeroSpace','main mode','Send window to workspace C and follow','a'],
+  ['Alt+Shift+D','AeroSpace','main mode','Send window to workspace D and follow','a'],
+  ['Alt+Shift+E','AeroSpace','main mode','Send window to workspace E and follow','a'],
+  ['Alt+Shift+F','AeroSpace','main mode','Send window to workspace F and follow','a'],
+  ['Alt+Shift+M','AeroSpace','main mode','Send window to workspace M and follow','a'],
+  ['Alt+Shift+N','AeroSpace','main mode','Send window to workspace N and follow','a'],
+  ['Alt+Shift+P','AeroSpace','main mode','Send window to workspace P and follow','a'],
+  ['Alt+Shift+I','AeroSpace','main mode','Send window to workspace I and follow','a'],
+  ['Alt+Shift+T','AeroSpace','main mode','Send window to workspace T and follow','a'],
+  ['Alt+Shift+V','AeroSpace','main mode','Send window to workspace V and follow','a'],
+  ['Alt+Shift+X','AeroSpace','main mode','Send window to workspace X and follow','a'],
+  ['Alt+Tab','AeroSpace','main mode','Previous workspace (back and forth)','a','q'],
+  ['Alt+Shift+Tab','AeroSpace','main mode','Move workspace to next monitor','a'],
+  ['Alt+Shift+;','AeroSpace','main mode','Enter service mode','a'],
+  ['Alt+Shift+R','AeroSpace','main mode','Enter resize mode','a','q'],
+  // AeroSpace · resize mode
+  ['h','AeroSpace','resize mode','Narrower by 50','a'],
+  ['j','AeroSpace','resize mode','Taller by 50','a'],
+  ['k','AeroSpace','resize mode','Shorter by 50','a'],
+  ['l','AeroSpace','resize mode','Wider by 50','a'],
+  ['b','AeroSpace','resize mode','Balance sizes','a'],
+  ['Alt+Shift+-','AeroSpace','main mode','Shrink the window by 50 (smart resize)','a'],
+  ['Alt+Shift+=','AeroSpace','main mode','Grow the window by 50 (smart resize)','a'],
+  ['Enter','AeroSpace','resize mode','Back to main mode','a'],
+  ['Esc','AeroSpace','resize mode','Back to main mode','a'],
+  // AeroSpace · service mode
+  ['Esc','AeroSpace','service mode','Reload config, back to main mode','a'],
+  ['r','AeroSpace','service mode','Reset layout (flatten tree)','a'],
+  ['f','AeroSpace','service mode','Toggle floating / tiling','a'],
+  ['Backspace','AeroSpace','service mode','Close all windows but the current one','a'],
+  ['Alt+Shift+H','AeroSpace','service mode','Join with window on the left','a'],
+  ['Alt+Shift+J','AeroSpace','service mode','Join with window below','a'],
+  ['Alt+Shift+K','AeroSpace','service mode','Join with window above','a'],
+  ['Alt+Shift+L','AeroSpace','service mode','Join with window on the right','a'],
+
+  // Karabiner · Hyper
+  ['Caps Lock','Karabiner','tap','Escape','k','q'],
+  ['Caps Lock','Karabiner','hold','Hyper layer (sets a variable, sends no modifiers)','k','q c:caps-dup'],
+  ['Hyper+T','Karabiner','hold Caps','Open Ghostty','k','q c:hyper-t'],
+  ['Hyper+B','Karabiner','hold Caps','Open Zen (config says “Zen Browser”, the app is named Zen)','k','bug c:hyper-b'],
+  ['Hyper+F','Karabiner','hold Caps','Open Finder','k','c:hyper-f'],
+  ['Hyper+1','Karabiner','hold Caps','Open DaVinci Resolve (not installed)','k','bug c:hyper-12'],
+  ['Hyper+2','Karabiner','hold Caps','Open OBS','k','c:hyper-12'],
+  ['Hyper+O → M','Karabiner','hold Hyper+O','Open Obsidian','k'],
+  ['Hyper+O → N','Karabiner','hold Hyper+O','Open Notion','k'],
+  ['Hyper+O → D','Karabiner','hold Hyper+O','Open Discord','k'],
+  ['Hyper+O → I','Karabiner','hold Hyper+O','Open Messages (typo in config: Message.app)','k','bug'],
+  ['Hyper+O → P','Karabiner','hold Hyper+O','Open Music','k'],
+  ['Hyper+O → V','Karabiner','hold Hyper+O','Open VS Code','k'],
+  ['Hyper+O → C','Karabiner','hold Hyper+O','Open Google Chrome','k'],
+  ['Hyper+O → W','Karabiner','hold Hyper+O','Open WezTerm (not installed)','k','bug'],
+  ['Hyper+W → Y','Karabiner','hold Hyper+W','Previous desktop (Raycast)','k'],
+  ['Hyper+W → O','Karabiner','hold Hyper+W','Next desktop (Raycast)','k'],
+  ['Hyper+W → K','Karabiner','hold Hyper+W','Window to top half (Raycast)','k'],
+  ['Hyper+W → J','Karabiner','hold Hyper+W','Window to bottom half (Raycast)','k'],
+  ['Hyper+W → H','Karabiner','hold Hyper+W','Window to left half (Raycast)','k'],
+  ['Hyper+W → L','Karabiner','hold Hyper+W','Window to right half (Raycast)','k'],
+  ['Hyper+W → Enter','Karabiner','hold Hyper+W','Maximize window (Raycast)','k'],
+  ['Hyper+W → M','Karabiner','hold Hyper+W','Send Ctrl+,','k'],
+  ['Hyper+W → ;','Karabiner','hold Hyper+W','Hide app (Cmd+H)','k'],
+  ['Hyper+W → U','Karabiner','hold Hyper+W','Previous tab (Ctrl+Shift+Tab)','k'],
+  ['Hyper+W → I','Karabiner','hold Hyper+W','Next tab (Ctrl+Tab)','k'],
+  ['Hyper+W → N','Karabiner','hold Hyper+W','Next window of the app (Cmd+`)','k'],
+  ['Hyper+W → B','Karabiner','hold Hyper+W','Back (Cmd+[)','k','dead c:hyper-b'],
+  ['Hyper+W → F','Karabiner','hold Hyper+W','Forward (Cmd+])','k','dead c:hyper-f'],
+  ['Hyper+W → D','Karabiner','hold Hyper+W','Send Ctrl+Alt+Cmd+→ (next display)','k'],
+  ['Hyper+S → U','Karabiner','hold Hyper+S','Volume up','k'],
+  ['Hyper+S → J','Karabiner','hold Hyper+S','Volume down','k'],
+  ['Hyper+S → I','Karabiner','hold Hyper+S','Brightness up','k'],
+  ['Hyper+S → K','Karabiner','hold Hyper+S','Brightness down','k'],
+  ['Hyper+S → L','Karabiner','hold Hyper+S','Lock screen (Ctrl+Cmd+Q)','k','q'],
+  ['Hyper+S → P','Karabiner','hold Hyper+S','Play / pause','k'],
+  ['Hyper+S → ;','Karabiner','hold Hyper+S','Fast-forward','k'],
+  ['Hyper+S → D','Karabiner','hold Hyper+S','Toggle Do Not Disturb (Raycast)','k'],
+  ['Hyper+S → T','Karabiner','hold Hyper+S','Toggle light / dark appearance','k','dead c:hyper-t'],
+  ['Hyper+S → C','Karabiner','hold Hyper+S','Open camera (Raycast)','k'],
+  ['Hyper+V → H','Karabiner','hold Hyper+V','Arrow left','k'],
+  ['Hyper+V → J','Karabiner','hold Hyper+V','Arrow down','k'],
+  ['Hyper+V → K','Karabiner','hold Hyper+V','Arrow up','k'],
+  ['Hyper+V → L','Karabiner','hold Hyper+V','Arrow right','k'],
+  ['Hyper+V → S','Karabiner','hold Hyper+V','Send Ctrl+J','k'],
+  ['Hyper+V → D','Karabiner','hold Hyper+V','Send Cmd+Shift+D','k'],
+  ['Hyper+V → U','Karabiner','hold Hyper+V','Page down','k'],
+  ['Hyper+V → I','Karabiner','hold Hyper+V','Page up','k'],
+  ['Hyper+C → P','Karabiner','hold Hyper+C','Play / pause','k'],
+  ['Hyper+C → N','Karabiner','hold Hyper+C','Next track','k'],
+  ['Hyper+C → B','Karabiner','hold Hyper+C','Previous track','k','dead c:hyper-b'],
+  ['Hyper+R → 1','Karabiner','hold Hyper+R','Connect Bluetooth favourite 1','k','dead c:hyper-12'],
+  ['Hyper+R → 2','Karabiner','hold Hyper+R','Connect Bluetooth favourite 2','k','dead c:hyper-12'],
+  ['Hyper+R → C','Karabiner','hold Hyper+R','Color picker (Raycast)','k'],
+  ['Hyper+R → N','Karabiner','hold Hyper+R','Raycast Notes','k'],
+  ['Hyper+R → E','Karabiner','hold Hyper+R','Emoji search (Raycast)','k'],
+  ['Hyper+R → P','Karabiner','hold Hyper+R','Confetti (Raycast)','k'],
+  ['Hyper+R → H','Karabiner','hold Hyper+R','Clipboard history (Raycast)','k','q'],
+  ['Hyper+P → S','Karabiner','hold Hyper+P','Search files (Raycast)','k'],
+  ['Hyper+P → F','Karabiner','hold Hyper+P','Folder search (Raycast)','k','dead c:hyper-f'],
+  ['Hyper+M → F','Karabiner','hold Hyper+M','File manager (Raycast)','k','dead c:hyper-f'],
+
+  // Ghostty
+  ['Cmd+B','Ghostty','any window','Leader for the chords below','g'],
+  ['Cmd+B → ,','Ghostty','after Cmd+B','Toggle quick terminal','g'],
+  ['Cmd+B → R','Ghostty','after Cmd+B','Reload config','g'],
+  ['Cmd+B → X','Ghostty','after Cmd+B','Close split or tab','g'],
+  ['Cmd+B → C','Ghostty','after Cmd+B','New tab','g','q'],
+  ['Cmd+B → N','Ghostty','after Cmd+B','New window','g'],
+  ['Cmd+B → 1…9','Ghostty','after Cmd+B','Go to tab 1–9','g','q'],
+  ['Cmd+B → \\','Ghostty','after Cmd+B','Split right','g','q'],
+  ['Cmd+B → -','Ghostty','after Cmd+B','Split down','g'],
+  ['Cmd+B → E','Ghostty','after Cmd+B','Equalize splits','g'],
+  ['Cmd+B → H','Ghostty','after Cmd+B','Go to split left','g'],
+  ['Cmd+B → J','Ghostty','after Cmd+B','Go to split below','g'],
+  ['Cmd+B → K','Ghostty','after Cmd+B','Go to split above','g'],
+  ['Cmd+B → L','Ghostty','after Cmd+B','Go to split right','g'],
+  ['Cmd+I','Ghostty','any window','Toggle terminal inspector','g'],
+  ['Cmd+L','Ghostty','any window','Clear screen (types Ctrl+L)','g','c:cmd-l'],
+  ['Cmd+K','Ghostty','any window','Clear the screen (clear_screen)','g','q'],
+
+  // Zed
+  ['Ctrl+E h','Zed','not insert','Tab switcher','z'],
+  ['Space p f','Zed','not insert','File finder','z','q'],
+  ['Space p s','Zed','not insert','Project search','z'],
+  ['Ctrl+O p','Zed','not insert','Open recent project','z'],
+  ['Space e e','Zed','not insert','Toggle right dock (file tree)','z','q'],
+  ['Ctrl+W z','Zed','normal / visual','Toggle zoom','z'],
+  ['Ctrl+H','Zed','insert','Signature help','z'],
+  ['Ctrl+^','Zed','normal','Alternate file','z'],
+  ['Ctrl+W f','Zed','normal','New terminal in the center','z'],
+  ['Shift+K','Zed','normal','Hover','z'],
+  ['Ctrl+C','Zed','normal','Cancel / close menu','z'],
+  ['Ctrl+H','Zed','normal','Focus pane left','z','q'],
+  ['Ctrl+J','Zed','normal','Focus pane down','z'],
+  ['Ctrl+K','Zed','normal','Focus pane up','z'],
+  ['Ctrl+L','Zed','normal','Focus pane right','z'],
+  ['=','Zed','visual','Format selection','z'],
+  ['Shift+J','Zed','visual','Move line down','z'],
+  ['Shift+K','Zed','visual','Move line up','z'],
+  ['g ]','Zed','normal / visual','Next diagnostic','z'],
+  ['g [','Zed','normal / visual','Previous diagnostic','z'],
+  ['g r','Zed','normal / visual','Find all references','z'],
+  ['g f','Zed','normal / visual','Open excerpts','z'],
+  ['Space v c a','Zed','normal / visual','Code actions','z','c:zed-space-v'],
+  ['Space v','Zed','normal / visual','Go to definition in a split','z','c:zed-space-v'],
+  ['Space r n','Zed','normal / visual','Rename symbol','z'],
+  ['Space m p','Zed','normal / visual','Format file','z'],
+  ['Space m Shift+P','Zed','normal / visual','Markdown preview to the side','z'],
+  ['Space g d','Zed','normal / visual','Toggle hunk diff','z'],
+  ['Space t i','Zed','normal / visual','Toggle inlay hints','z'],
+  ['Space c z','Zed','normal / visual','Toggle centered layout','z'],
+  ['Space f p','Zed','normal / visual','Open recent project','z'],
+  ['Ctrl+C','Zed','editor (any mode)','Send Esc (key is written "ctrl-c " with a trailing space)','z','bug'],
+  ['Ctrl+J','Zed','editor menus','Menu: next item','z'],
+  ['Ctrl+K','Zed','editor menus','Menu: previous item','z'],
+  ['a','Zed','project panel','New file','z'],
+  ['Shift+A','Zed','project panel','New folder','z'],
+  ['r','Zed','project panel','Rename','z'],
+  ['d','Zed','project panel','Delete','z'],
+  ['x','Zed','project panel','Cut','z'],
+  ['c','Zed','project panel','Copy','z'],
+  ['p','Zed','project panel','Paste','z'],
+  ['q','Zed','project panel','Close the panel','z'],
+  ['Ctrl+H','Zed','project panel','Focus pane left','z'],
+  ['Ctrl+J','Zed','project panel','Focus pane down','z'],
+  ['Ctrl+K','Zed','project panel','Focus pane up','z'],
+  ['Ctrl+L','Zed','project panel','Focus pane right','z'],
+  ['Ctrl+H','Zed','terminal','Focus pane left','z','c:zed-term'],
+  ['Ctrl+J','Zed','terminal','Focus pane down','z','c:zed-term'],
+  ['Ctrl+K','Zed','terminal','Focus pane up','z','c:zed-term'],
+  ['Ctrl+L','Zed','terminal','Focus pane right','z','c:zed-term'],
+  ['Ctrl+W f','Zed','terminal','New terminal in the center','z','c:zed-term'],
+
+  // Superfile
+  ['Enter','Superfile','file panel','Open / confirm','s'],
+  ['Ctrl+C','Superfile','file panel','Quit','s'],
+  ['k','Superfile','file panel','Move up','s','q'],
+  ['j','Superfile','file panel','Move down','s','q'],
+  ['PgUp','Superfile','file panel','Page up','s'],
+  ['PgDn','Superfile','file panel','Page down','s'],
+  ['n','Superfile','file panel','New file panel','s'],
+  ['q','Superfile','file panel','Close file panel','s'],
+  ['Tab','Superfile','file panel','Next file panel','s'],
+  ['Shift+Tab','Superfile','file panel','Previous file panel','s'],
+  ['f','Superfile','file panel','Toggle preview panel','s'],
+  ['o','Superfile','file panel','Sort options','s'],
+  ['Shift+R','Superfile','file panel','Reverse sort','s'],
+  ['Ctrl+P','Superfile','file panel','Focus process bar','s'],
+  ['Ctrl+S','Superfile','file panel','Focus sidebar','s'],
+  ['Ctrl+D','Superfile','file panel','Focus metadata','s'],
+  ['a','Superfile','file panel','Create file or folder','s','q'],
+  ['r','Superfile','file panel','Rename','s'],
+  ['y','Superfile','file panel','Copy','s','q'],
+  ['x','Superfile','file panel','Cut','s'],
+  ['p','Superfile','file panel','Paste','s','q'],
+  ['d','Superfile','file panel','Delete','s'],
+  ['Ctrl+E','Superfile','file panel','Extract archive','s'],
+  ['Ctrl+A','Superfile','file panel','Compress','s'],
+  ['e','Superfile','file panel','Open file in editor','s','q'],
+  ['Shift+E','Superfile','file panel','Open folder in editor','s'],
+  ['Shift+P','Superfile','file panel','Pin folder','s'],
+  ['.','Superfile','file panel','Toggle dotfiles','s'],
+  ['m','Superfile','file panel','Change panel mode','s'],
+  ['?','Superfile','file panel','Help menu','s','q'],
+  [':','Superfile','file panel','Command line','s'],
+  ['Shift+Y','Superfile','file panel','Copy path','s'],
+  ['c','Superfile','file panel','Copy working directory','s'],
+  ['Ctrl+F','Superfile','file panel','Toggle footer','s'],
+  ['-','Superfile','file panel','Parent folder','s'],
+  ['/','Superfile','file panel','Search','s'],
+  ['>','Superfile','file panel','Open the superfile prompt','s'],
+  ['Enter','Superfile','typing','Confirm','s'],
+  ['Esc','Superfile','typing','Cancel','s'],
+  ['Shift+J','Superfile','select mode','Extend selection down','s'],
+  ['Shift+K','Superfile','select mode','Extend selection up','s'],
+  ['Shift+A','Superfile','select mode','Select all','s'],
+
+  // zsh · keys
+  ['Esc','zsh','prompt (vi insert)','Vi normal mode','zr'],
+  ['jj','zsh','prompt (vi insert)','Vi normal mode','zr','q'],
+  ['Ctrl+E','zsh','prompt (vi insert)','Accept autosuggestion','zr','q'],
+  ['Ctrl+P','zsh','prompt (vi insert)','Previous history line','zr'],
+  ['Ctrl+N','zsh','prompt (vi insert)','Next history line','zr'],
+  ['Ctrl+F','zsh','prompt','Run tmux-sessionizer','zr','q'],
+  ['Ctrl+O','zsh','prompt','Run tmux-sessionizer --edit','zr'],
+  ['Ctrl+R','zsh','prompt (vi insert and normal)','History search (atuin)','zr','q c:ctrl-r'],
+  ['Ctrl+R','zsh','prompt','History search (fzf), replaced by atuin','zf','dead c:ctrl-r'],
+  ['Ctrl+T','zsh','prompt','Insert picked files (fzf)','zf'],
+  ['Alt+C','zsh','prompt','cd into a picked folder (fzf)','zf','dead c:alt-c'],
+  ['Ctrl+G','zsh','prompt','Unbound on purpose (bindkey -r)','zr','off'],
+  // zsh · aliases
+  ['ll','zsh','alias','eza long list, hidden files too','za'],
+  ['la','zsh','alias','eza, hidden files, no owner column','za'],
+  ['l','zsh','alias','eza long list, no owner column','za'],
+  ['ls','zsh','alias','eza with icons, folders first','za'],
+  ['lt','zsh','alias','eza tree, 2 levels, git status','za'],
+  ['..','zsh','alias','cd up one level','za'],
+  ['...','zsh','alias','cd up two levels','za'],
+  ['....','zsh','alias','cd up three levels','za'],
+  ['.....','zsh','alias','cd up three levels (should be four)','za','bug'],
+  ['h','zsh','alias','history','za'],
+  ['path','zsh','alias','Print PATH, one entry per line','za'],
+  ['now','zsh','alias','Current time','za'],
+  ['nowdate','zsh','alias','Current date (dd-mm-yyyy)','za'],
+  ['vim','zsh','alias','nvim','za','q'],
+  ['vi','zsh','alias','vim, which expands to nvim','za'],
+  ['svim','zsh','alias','sudoedit (edit a root-owned file safely)','za'],
+  ['gs','zsh','alias','git status','za','q'],
+  ['gss','zsh','alias','git stash','za'],
+  ['gpop','zsh','alias','git stash pop','za'],
+  ['gaa','zsh','alias','git add .','za'],
+  ['ga','zsh','alias','git add','za'],
+  ['gl','zsh','alias','git log --onleline (typo, git rejects it)','za','bug'],
+  ['glo','zsh','alias','git log --oneline','za','q'],
+  ['glog','zsh','alias','git log graph, colored','za'],
+  ['gcm','zsh','alias','git commit -m','za','q'],
+  ['gc','zsh','alias','git commit','za'],
+  ['gpush','zsh','alias','git push','za'],
+  ['gpull','zsh','alias','git pull','za'],
+  ['gco','zsh','alias','git checkout','za'],
+  ['greb','zsh','alias','git rebase','za'],
+  ['grebi','zsh','alias','git rebase -i','za'],
+  ['gcl','zsh','alias','git clone','za'],
+  ['gcom','zsh','alias','git checkout main','za'],
+  ['gcoms','zsh','alias','git checkout master','za'],
+  ['gcot','zsh','alias','git checkout test','za'],
+  ['gcos','zsh','alias','git checkout staging','za'],
+  ['gcod','zsh','alias','git checkout development','za'],
+  ['dps','zsh','alias','docker ps','za'],
+  ['dk','zsh','alias','docker','za'],
+  ['dc','zsh','alias','docker compose','za'],
+  ['nzo','zsh','alias','Open files from a zoxide folder in nvim','za'],
+  ['ping8','zsh','alias','Ping Google public DNS','za'],
+  ['ping4','zsh','alias','Ping Level 3 public DNS','za'],
+  ['cmx','zsh','alias','cmatrix','za'],
+
+  // SketchyBar (mouse)
+  ['Click: workspace','SketchyBar','menu bar','Switch to that AeroSpace workspace','sb'],
+  ['Click: clock','SketchyBar','menu bar','Show / hide world clocks','sb'],
+  ['Click: language','SketchyBar','menu bar','Open input-source settings','sb'],
+  ['Click: cpu / memory','SketchyBar','menu bar','Top-10 process popup; click a row to open Activity Monitor','sb'],
+  ['Click: net down / up','SketchyBar','menu bar','Network popup with Network Settings and Activity Monitor rows','sb'],
+  ['Mouse out of a popup','SketchyBar','menu bar','Close the popup','sb'],
+  ['Click: volume','SketchyBar','menu bar','Show / hide the volume slider','sb'],
+
+  // macOS
+  ['Alt+Space','macOS','system','Next input source','mac'],
+  ['Ctrl+Alt+Space','macOS','system','Previous input source','mac'],
+
+  // TickTick (app defaults)
+  ['Cmd+K','TickTick','app','Command menu','doc','q'],
+  ['Cmd+S','TickTick','app','Save','doc'],
+  ['.','TickTick','app','Sync','doc'],
+  ['Esc','TickTick','app','Cancel','doc'],
+  ['Cmd+Z','TickTick','app','Undo','doc'],
+  ['Cmd+Shift+Z','TickTick','app','Redo','doc'],
+  ['Cmd+P','TickTick','app','Print','doc'],
+  ['Cmd+Shift+P','TickTick','app','Start / pause focus timer','doc'],
+  ['?','TickTick','app','Shortcut list','doc'],
+  ['N','TickTick','task list','Add task (also Tab+N)','doc','q'],
+  ['Enter','TickTick','task list','Add task below','doc'],
+  ['Shift+Enter','TickTick','task list','Add subtask','doc'],
+  ['Tab+E','TickTick','task list','Expand / collapse all subtasks','doc'],
+  ['V → L','TickTick','task list','List view','doc'],
+  ['V → K','TickTick','task list','Kanban view','doc'],
+  ['V → T','TickTick','task list','Timeline view','doc'],
+  ['*','TickTick','quick add','Set due date','doc'],
+  ['!','TickTick','quick add','Set priority','doc'],
+  ['#','TickTick','quick add','Add tag','doc'],
+  ['~','TickTick','quick add','Move to list (also ^)','doc'],
+  ['@','TickTick','quick add','Assign to member','doc'],
+  ['Tab+M','TickTick','task selected','Complete','doc'],
+  ['Tab+P','TickTick','task selected','Pin','doc'],
+  ['Cmd+Delete','TickTick','task selected','Delete','doc'],
+  ['Tab+D','TickTick','task selected','Set date','doc'],
+  ['Tab+0','TickTick','task selected','Clear date','doc'],
+  ['Tab+1','TickTick','task selected','Due today','doc'],
+  ['Tab+2','TickTick','task selected','Due tomorrow','doc'],
+  ['Tab+3','TickTick','task selected','Due next week','doc'],
+  ['Alt+0','TickTick','task selected','No priority','doc'],
+  ['Alt+1','TickTick','task selected','Set priority 1','doc','dead c:alt-num'],
+  ['Alt+2','TickTick','task selected','Set priority 2','doc','dead c:alt-num'],
+  ['Alt+3','TickTick','task selected','Set priority 3','doc','dead c:alt-num'],
+  ['/','TickTick','app','Search','doc'],
+  ['G → T','TickTick','app','Go to Today','doc','q'],
+  ['G → R','TickTick','app','Go to Tomorrow','doc'],
+  ['G → N','TickTick','app','Go to Next 7 Days','doc'],
+  ['G → I','TickTick','app','Go to Inbox','doc'],
+  ['G → A','TickTick','app','Go to All','doc'],
+  ['G → M','TickTick','app','Go to Assigned to Me','doc'],
+  ['G → C','TickTick','app','Go to Completed','doc'],
+  ['G → W','TickTick','app','Go to Won’t Do','doc'],
+  ['G → B','TickTick','app','Go to Summary','doc'],
+  ['G → G','TickTick','app','Go to Trash','doc'],
+  ['G → S','TickTick','app','Go to Settings','doc'],
+  ['D','TickTick','calendar','Day view (also 1)','doc'],
+  ['W','TickTick','calendar','Week view (also 2)','doc'],
+  ['M','TickTick','calendar','Month view (also 3)','doc'],
+  ['A','TickTick','calendar','Agenda (also 4)','doc'],
+  ['T','TickTick','calendar','Back to today','doc'],
+];
+
+const SRC = {
+  nk:'nvim/.config/nvim/lua/taher/core/keymaps.lua', np:'nvim/.config/nvim/lua/taher/plugins/init.lua',
+  ng:'nvim/.config/nvim/lua/taher/plugins/gitsigns.lua', nh:'nvim/.config/nvim/lua/taher/plugins/harpoon.lua',
+  nt:'nvim/.config/nvim/lua/taher/plugins/telescope.lua', ns:'nvim/.config/nvim/lua/taher/plugins/treesitter.lua',
+  nr:'nvim/.config/nvim/lua/taher/plugins/trouble.lua', nl:'nvim/.config/nvim/lua/taher/plugins/lsp/lspconfig.lua',
+  nc:'nvim/.config/nvim/lua/taher/plugins/nvim-cmp.lua', nf:'nvim/.config/nvim/lua/taher/plugins/formatting.lua',
+  nn:'nvim/.config/nvim/lua/taher/plugins/linting.lua', nm:'nvim/.config/nvim/lua/taher/plugins/mini.lua',
+  ne:'nvim/.config/nvim/lua/taher/plugins/emmet.lua', nu:'nvim/.config/nvim/lua/taher/plugins/undotree.lua',
+  no:'nvim/.config/nvim/lua/taher/plugins/nvim-ufo.lua', v:'vim/.vimrc',
+  t:'tmux/.config/tmux/tmux.conf', tp:'tmux/.config/tmux/tmux.conf (plugin default)',
+  a:'aerospace/.config/aerospace/aerospace.toml', k:'karabiner/.config/karabiner/karabiner.json',
+  g:'ghostty/.config/ghostty/config', z:'zed/.config/zed/keymap.json', s:'superfile/Library/Application Support/superfile/hotkeys.toml',
+  zr:'zsh/.zshrc', zf:'zsh/.zshrc (fzf --zsh default)', za:'zsh/.zalias',
+  sb:'sketchybar/.config/sketchybar/items/*.sh', mac:'macOS System Settings › Keyboard Shortcuts',
+  doc:'keyboard-shortcuts-analysis.md',
+};
+
+/* APPS: scope "global" = OS-level, sees keys before any app. hue = dot colour. Order = chip order. */
+const APPS = {
+  'Neovim':{scope:'app',hue:'pine'}, 'tmux':{scope:'app',hue:'gold'}, 'AeroSpace':{scope:'global',hue:'iris'},
+  'Karabiner':{scope:'global',hue:'love',inactive:'Karabiner-Elements is not installed'}, 'Ghostty':{scope:'app',hue:'rose'}, 'zsh':{scope:'app',hue:'foam'},
+  'Zed':{scope:'app',hue:'foam'}, 'Superfile':{scope:'app',hue:'gold'}, 'TickTick':{scope:'app',hue:'rose'},
+  'SketchyBar':{scope:'global',hue:'iris'}, 'macOS':{scope:'global',hue:'muted'}, 'Vim':{scope:'app',hue:'pine'},
+};
+
+/* COLLISIONS: bindings live at the same time on the same physical key.
+   items = [app, context, binding, source]; win = index of the item that wins, -1 = depends on timing.
+   latent = the config clashes, but the app is not installed, so nothing fires today. */
+const COLLISIONS = [
+  {id:'cmd-l', sev:'high', keys:['Cmd+L','Ctrl+L'], title:'Ghostty’s clear-screen moves the tmux pane instead',
+    items:[['Ghostty','any window','Cmd+L types Ctrl+L to clear the screen','ghostty config'],
+           ['tmux','root table (navigator bindings)','Ctrl+L selects the pane to the right, or moves nvim one split right','tmux.conf']], win:1,
+    why:'Inside tmux the Ctrl+L that Ghostty types is caught by the navigator binding, so the screen never clears.',
+    fix:'Make Cmd+L type clear like Cmd+K does: `keybind = cmd+l=text:clear\\n`. Until then, clear with prefix + Ctrl+L.'},
+  {id:'leader-sh', sev:'high', keys:['<leader>sh'], title:'Horizontal split is overwritten by Telescope help',
+    items:[['Neovim','normal','<leader>sh split window horizontally','core/keymaps.lua:79'],
+           ['Neovim','normal','<leader>sh search help tags','plugins/telescope.lua:43']], win:1,
+    why:'Telescope sets its keymaps after core/keymaps.lua runs, so the split mapping is silently replaced.',
+    fix:'Move one of them: split to `<leader>s-` (core/keymaps.lua:79) or help to `<leader>sH` (telescope.lua:43).'},
+  {id:'hyper-f', sev:'high', latent:true, keys:['Hyper+F','Hyper+W → F','Hyper+P → F','Hyper+M → F'], title:'Hyper+F opens Finder even inside the W, P and M layers',
+    items:[['Karabiner','hold Caps','Hyper+F opens Finder','karabiner.json “Hyper Key” rule'],
+           ['Karabiner','hold Hyper+W','W → F forward (Cmd+])','sublayer “w”'],
+           ['Karabiner','hold Hyper+P','P → F folder search','sublayer “p”'],
+           ['Karabiner','hold Hyper+M','M → F file manager, the only key in that layer','sublayer “m”']], win:0,
+    why:'The direct Hyper rule sits above the sublayer rules in karabiner.json and only checks hyper = 1, so it matches first.',
+    fix:'Add `hyper_sublayer_* = 0` conditions to the five direct Hyper keys (T, B, F, 1, 2), or move that rule below the sublayer rules.'},
+  {id:'hyper-b', sev:'high', latent:true, keys:['Hyper+B','Hyper+W → B','Hyper+C → B'], title:'Hyper+B steals Back and Previous track',
+    items:[['Karabiner','hold Caps','Hyper+B opens Zen','karabiner.json “Hyper Key” rule'],
+           ['Karabiner','hold Hyper+W','W → B back (Cmd+[)','sublayer “w”'],
+           ['Karabiner','hold Hyper+C','C → B previous track','sublayer “c”']], win:0,
+    why:'Same rule-order problem as Hyper+F. The winner may also fail: it runs open -a “Zen Browser”, but the app is named Zen.',
+    fix:'Same guard as Hyper+F, and change the command to `open -a Zen`.'},
+  {id:'alt-lk', sev:'medium', keys:['Alt+L','Alt+K'], title:'tmux clear keys never arrive',
+    items:[['AeroSpace','global, main mode','Alt+L focus right · Alt+K focus up','aerospace.toml'],
+           ['tmux','root table','Alt+L clears · Alt+K clears screen and scrollback (in a shell)','tmux.conf']], win:0,
+    why:'AeroSpace grabs Alt+letter at OS level before Ghostty or tmux sees it, so the new shell-aware versions still never fire.',
+    fix:'Move them off Alt (AeroSpace owns it) or delete them. Cmd+K in Ghostty and prefix + Ctrl+L already clear.'},
+  {id:'hyper-t', sev:'medium', latent:true, keys:['Hyper+T','Hyper+S → T'], title:'Toggle dark mode opens Ghostty instead',
+    items:[['Karabiner','hold Caps','Hyper+T opens Ghostty','karabiner.json “Hyper Key” rule'],
+           ['Karabiner','hold Hyper+S','S → T toggle system appearance','sublayer “s”']], win:0,
+    why:'Rule order, as with Hyper+F.', fix:'Same sublayer guard as Hyper+F.'},
+  {id:'hyper-12', sev:'medium', latent:true, keys:['Hyper+1','Hyper+2','Hyper+R → 1','Hyper+R → 2'], title:'Bluetooth favourites open DaVinci and OBS',
+    items:[['Karabiner','hold Caps','Hyper+1 DaVinci Resolve · Hyper+2 OBS','karabiner.json “Hyper Key” rule'],
+           ['Karabiner','hold Hyper+R','R → 1 / R → 2 connect Bluetooth favourite','sublayer “r”']], win:0,
+    why:'Rule order again. DaVinci Resolve is not installed, so Hyper+R → 1 currently does nothing at all.',
+    fix:'Same sublayer guard as Hyper+F; drop Hyper+1 or point it at an installed app.'},
+  {id:'ctrl-shift', sev:'medium', keys:['Ctrl+Shift+P','Ctrl+Shift+N'], title:'Harpoon prev / next fire Ctrl+P / Ctrl+N inside tmux',
+    items:[['Neovim','normal','Ctrl+Shift+P / Ctrl+Shift+N harpoon previous / next','plugins/harpoon.lua:43–48'],
+           ['Neovim','normal','Ctrl+P git files · Ctrl+N harpoon file 3','telescope.lua, harpoon.lua'],
+           ['tmux','all panes','extended-keys is off, so Shift is dropped','tmux.conf']], win:1,
+    why:'Without extended keys, tmux sends Ctrl+Shift+P to nvim as plain Ctrl+P.',
+    fix:'Add `set -s extended-keys on` and `set -as terminal-features "xterm*:extkeys"` to tmux.conf, or move harpoon prev / next to leader keys.'},
+  {id:'alt-num', sev:'medium', keys:['Alt+1','Alt+2','Alt+3'], title:'TickTick priority keys are taken by workspaces',
+    items:[['AeroSpace','global, main mode','Alt+1/2/3 go to workspace 1/2/3','aerospace.toml'],
+           ['TickTick','task selected','Alt+1/2/3 set priority','app default']], win:0,
+    why:'AeroSpace takes the key system-wide. Alt+0 (no priority) still reaches TickTick.',
+    fix:'Set priority with ! in quick add, or rebind TickTick’s priority shortcuts.'},
+  {id:'alt-c', sev:'medium', keys:['Alt+C'], title:'fzf’s jump-to-folder key is dead',
+    items:[['AeroSpace','global, main mode','Alt+C workspace C','aerospace.toml'],
+           ['zsh','prompt (fzf --zsh)','Alt+C cd into a picked folder','.zshrc:56']], win:0,
+    why:'AeroSpace takes Alt+C before Ghostty can turn it into a terminal key.',
+    fix:'Use the freed Ctrl+G: add `bindkey \'^G\' fzf-cd-widget` after the fzf init in .zshrc.'},
+  {id:'leader-s', sev:'medium', keys:['<leader>s'], title:'Replace-word waits on fifteen <leader>s… maps',
+    items:[['Neovim','normal','<leader>s replace word under cursor','core/keymaps.lua'],
+           ['Neovim','normal','<leader>sv/sh/se/sx/sm splits and <leader>sf/sg/sk/… Telescope','keymaps.lua, telescope.lua']], win:-1,
+    why:'Neovim waits timeoutlen (300 ms) after <leader>s. A key typed inside that window runs a different map.',
+    fix:'Give replace-word its own key, for example `<leader>rw`.'},
+  {id:'zed-term', sev:'medium', keys:['Ctrl+H','Ctrl+J','Ctrl+L','Ctrl+W'], title:'Zed’s terminal swallows shell keys',
+    items:[['Zed','terminal','Ctrl+H/J/K/L focus pane · Ctrl+W f new terminal','zed keymap.json'],
+           ['zsh','prompt inside Zed','Ctrl+H backspace · Ctrl+J accept line · Ctrl+L clear · Ctrl+W delete word','shell defaults']], win:0,
+    why:'Ctrl+W turns into the first half of a chord, so delete-word stalls until it times out.',
+    fix:'In the Terminal context use Ctrl+Alt+H/J/K/L for panes and drop `ctrl-w f`.'},
+  {id:'fzf-widget', sev:'low', keys:['Ctrl+J','Ctrl+K'], title:'fzf from Ctrl+T moves tmux panes instead of the list',
+    items:[['tmux','root table','Ctrl+J / Ctrl+K select pane unless vim, nvim or fzf is the foreground process','tmux.conf'],
+           ['zsh','fzf widget (Ctrl+T)','Ctrl+J / Ctrl+K move through the fzf list','fzf --zsh']], win:0,
+    why:'fzf started from a zsh widget runs inside zsh, so tmux sees zsh in front and takes the key.',
+    fix:'Move through the list with Ctrl+N / Ctrl+P or the arrows, or make the tmux check look at the pane’s child processes (`ps -t #{pane_tty}`) instead of the foreground command.'},
+  {id:'tmux-root', sev:'low', keys:['Ctrl+H','Ctrl+J','Ctrl+K'], title:'Pane keys hide shell keys in a plain shell',
+    items:[['tmux','root table','Ctrl+H/J/K/L select pane','tmux.conf'],
+           ['zsh','prompt','Ctrl+H backspace · Ctrl+J accept line · Ctrl+L clear','shell defaults']], win:0,
+    why:'Expected: in a shell pane these keys move panes.', fix:'Clear with Cmd+K or prefix + Ctrl+L; nothing to change.'},
+  {id:'leader-pfx', sev:'low', keys:['<leader>f','<leader>l','<leader>x'], title:'Format, lint and chmod each wait 300 ms',
+    items:[['Neovim','normal','<leader>f format · <leader>l lint · <leader>x chmod +x','formatting, linting, keymaps'],
+           ['Neovim','normal','<leader>fp/fj/fk · <leader>lx/lq/ld/lD/lrs · <leader>xw/xd/xq/xl/xt/xe','keymaps, lsp, trouble, mini, emmet']], win:-1,
+    why:'Each short map is also the start of longer ones, so Neovim waits timeoutlen before running it.',
+    fix:'Move the short ones to unique keys (for example `<leader>cf`, `<leader>cl`, `<leader>cx`) or live with the pause.'},
+  {id:'ctrl-r', sev:'low', keys:['Ctrl+R'], title:'fzf and atuin both claim Ctrl+R',
+    items:[['zsh','prompt (fzf --zsh)','fzf history search','.zshrc:56'],
+           ['zsh','prompt','atuin up-search, bound later','.zshrc:72']], win:1,
+    why:'The later bindkey wins. This is what you want.', fix:'Nothing to fix.'},
+  {id:'tmux-defaults', sev:'low', keys:['prefix + n','prefix + l','prefix + o','prefix + m'], title:'Your prefix keys replace tmux defaults',
+    items:[['tmux','prefix (built-in)','n next window · l last window · o next pane · m mark pane · f find window · h/k unbound','tmux defaults'],
+           ['tmux','prefix (yours)','n new session · h/j/k/l resize · o sessionx · m zoom · f sessionizer','tmux.conf']], win:1,
+    why:'Deliberate, but next-window and last-window no longer have a key.', fix:'Fine if intended; windows are still reachable with prefix + 1…9 or prefix + w.'},
+  {id:'nvim-builtins', sev:'low', keys:['Ctrl+E','Ctrl+Y','Ctrl+T','gt','gi','Ctrl+F'], title:'Harpoon, LSP and sessionizer replace Vim built-ins',
+    items:[['Neovim (built-in)','normal','Ctrl+E / Ctrl+Y scroll one line · Ctrl+T tag back · gt next tab · gi insert at last spot · Ctrl+F page down','Vim defaults'],
+           ['Neovim','normal','Harpoon menu, file 1, file 2 · LSP type definitions, implementations · tmux-sessionizer','harpoon, lspconfig, keymaps']], win:1,
+    why:'Deliberate overrides. gt and gi only change in buffers with an LSP attached.', fix:'Fine if intended; `<leader>tn` covers next tab.'},
+  {id:'caps-dup', sev:'low', latent:true, keys:['Caps Lock'], title:'Two Caps Lock manipulators, only the first runs',
+    items:[['Karabiner','first caps_lock manipulator','handles Caps Lock','karabiner.json'],
+           ['Karabiner','later caps_lock manipulator in the Hyper rule','never reached','karabiner.json']], win:0,
+    why:'Karabiner uses the first manipulator that matches, so the later one is dead config.',
+    fix:'Keep a single caps_lock manipulator: hold sets hyper, tap sends Escape.'},
+  {id:'zed-space-v', sev:'low', keys:['Space v'], title:'Zed Space v waits for Space v c a',
+    items:[['Zed','normal / visual','Space v go to definition in a split','zed keymap.json'],
+           ['Zed','normal / visual','Space v c a code actions','zed keymap.json']], win:-1,
+    why:'Zed waits for the longer chord before running the short one.', fix:'Rename one, for example `Space g v` for the split.'},
+];
+
+/* Same key, different contexts that are never live together. Harmless. */
+const HARMLESS = [
+  ['j / k','Superfile list, Neovim motion, AeroSpace resize mode. Each only in its own app or mode.'],
+  ['Ctrl+F','Neovim normal and the zsh prompt both open tmux-sessionizer; Superfile toggles its footer; Neovim completion scrolls docs.'],
+  ['Ctrl+E','Harpoon menu (nvim normal), close completion (insert), accept suggestion (zsh), extract (Superfile), Ctrl+E h (Zed).'],
+  ['Ctrl+P / Ctrl+N','Telescope git files and harpoon file 3 (normal), completion (insert), zsh history, Superfile process bar.'],
+  ['Ctrl+S','Harpoon file 4 in Neovim, Superfile sidebar, tmux save sits behind the prefix.'],
+  ['Ctrl+C','Esc or clear highlight in Neovim, cancel in Zed, quit Superfile, interrupt in the shell.'],
+  ['Ctrl+H (insert)','Signature help in both Neovim and Zed. Same habit in two editors.'],
+  ['<leader>gp','Fugitive status buffer runs pull --rebase; file buffers preview the hunk. Buffer-local, never both.'],
+  ['jj','Escape in Vim insert mode and in the zsh vi prompt.'],
+  ['Ctrl+J / Ctrl+K','Telescope prompt, completion menu, Zed menus and Zed panes, each in its own mode.'],
+  ['Ctrl+O','zsh runs tmux-sessionizer --edit; Neovim keeps its jump-back.'],
+  ['gc','zsh alias for git commit; Neovim comment operator.'],
+  ['n · m · / · ?','Superfile, TickTick and Neovim, each in its own app.'],
+  ['Alt+B / Alt+F / Alt+D','AeroSpace takes them, but the zsh prompt runs in vi mode, so no word motions are lost.'],
+  ['Esc','Leaves AeroSpace resize or service mode only while one is active.'],
+  ['Cmd+B vs Ctrl+B','Ghostty chord leader and tmux prefix are different keys.'],
+];
+
+/* LAYERS: the stack, in the order a key reaches it. [app, modifier, job]. {{key}} renders as a key cap, `x` as code. */
+const LAYERS = [
+  ['Karabiner','{{Hyper}} hold Caps Lock','Launch apps, media, Raycast. Inactive: Karabiner-Elements is not installed.'],
+  ['AeroSpace','{{Alt}}','Workspaces and tiled windows, system-wide'],
+  ['Ghostty','{{Cmd}}','The terminal window: tabs, clear, quick terminal'],
+  ['tmux','{{Ctrl+B}} {{Ctrl+H/J/K/L}}','A session per project, panes inside it'],
+  ['zsh','{{jj}} vi mode','The prompt: history, fzf, aliases'],
+  ['Neovim','{{Space}} leader','Editing, search, LSP, git'],
+];
+
+/* LESSONS: the tutorial path, in order. keys = [key, action, app?] (app defaults to the lesson's). */
+const LESSONS = [
+  {id:'windows', day:'Day 1', app:'AeroSpace', title:'Windows and workspaces',
+    why:'Every app has a home workspace: T terminal, B browser, N notes, M messages, E TickTick, P calendar. Jump by letter instead of hunting with Cmd+Tab. {{Alt}} is reserved for this everywhere.',
+    keys:[['Alt+T','Go to the terminal workspace'],['Alt+B','Go to the browser workspace'],['Alt+Tab','Back to the previous workspace'],
+      ['Alt+H','Focus the window on the left'],['Alt+L','Focus the window on the right'],['Alt+Shift+H','Move the window left'],
+      ['Alt+Shift+F','Send the window to workspace F and follow it'],['Alt+/','Tiles layout'],['Alt+,','Accordion layout'],['Alt+Shift+R','Resize mode: h j k l, then Esc']],
+    drill:['Open Ghostty and Zen. Press {{Alt+T}}, {{Alt+B}}, then {{Alt+Tab}} ten times without looking at the keyboard.',
+      'Put two windows on one workspace and walk between them with {{Alt+H}} and {{Alt+L}}. Swap them with {{Alt+Shift+H}}.',
+      'Send a Finder window away with {{Alt+Shift+F}}, then come back with {{Alt+Tab}}.']},
+  {id:'prompt', day:'Day 2', app:'zsh', title:'The prompt',
+    why:'The prompt runs in vi mode: type as usual, press {{jj}} to edit the line like Vim. History search is atuin, the file picker is fzf, and short git aliases save typing.',
+    keys:[['jj','Vi normal mode on the prompt'],['Ctrl+E','Accept the grey suggestion'],['Ctrl+R','Search history (atuin)'],['Ctrl+T','Pick files into the command (fzf)'],
+      ['Cmd+K','Clear the screen','Ghostty'],['Cmd+B → C','New Ghostty tab','Ghostty'],['gs','git status'],['glo','git log --oneline'],['gcm','git commit -m']],
+    drill:['Type the start of a command you ran yesterday and take the suggestion with {{Ctrl+E}}.',
+      'Find a long command with {{Ctrl+R}}, press {{jj}}, change one word with `cw`, run it.',
+      'Clear with {{Cmd+K}}. Not Cmd+L: inside tmux it moves to the right pane.']},
+  {id:'tmux', day:'Day 3', app:'tmux', title:'Sessions and panes',
+    why:'One tmux session per project. The sessionizer picks a folder and opens or reattaches its session, so closing Ghostty loses nothing. Split panes here, not in Ghostty.',
+    keys:[['Ctrl+F','Pick a project and open its session','zsh'],['prefix + o','Switch session (sessionx)'],['prefix + n','New named session'],
+      ['prefix + |','Split side by side'],['prefix + -','Split top and bottom'],['Ctrl+H','Pane left, or the Neovim split on the left'],['Ctrl+L','Pane right'],
+      ['prefix + m','Zoom the pane in and out'],['prefix + h','Resize left (hold to repeat)'],['prefix + v','Copy mode: v select, y copy']],
+    drill:['From a fresh shell press {{Ctrl+F}} and open this dotfiles repo.',
+      'Make three panes with {{prefix + |}} and {{prefix + -}}. Walk them with {{Ctrl+H}} and {{Ctrl+L}}. Zoom one with {{prefix + m}}.',
+      'Copy a line of output: {{prefix + v}}, move to it, {{v}}, {{y}}, then paste at the prompt.']},
+  {id:'nvim', day:'Day 4', app:'Neovim', title:'Neovim core',
+    why:'The leader is {{Space}}. Core moves keep the cursor centred and keep your register safe. Splits live under {{<leader>s}}.',
+    keys:[['<leader>pv','File explorer'],['Ctrl+D','Half page down, centred'],['Ctrl+U','Half page up, centred'],['J','Move selected lines down (visual)'],['K','Move selected lines up (visual)'],
+      ['p','Paste over a selection, keep the register (visual)'],['<leader>Y','Yank the line to the system clipboard'],['<leader>d','Delete without yanking'],
+      ['<leader>sv','Split vertically'],['<leader>sm','Maximise or restore the split'],['<leader>sx','Close the split'],['Ctrl+C','Clear search highlight']],
+    drill:['Select three lines with `V` and move them with {{J}} and {{K}}.',
+      'Split with {{<leader>sv}}, maximise with {{<leader>sm}}, close with {{<leader>sx}}.',
+      'Yank a word, select another word, paste over it with {{p}}. Paste again: the first word is still there.']},
+  {id:'find', day:'Day 5', app:'Neovim', title:'Finding things',
+    why:'Search, don’t browse. Telescope finds any file or line; Harpoon pins the four files you are working in so each is one key away.',
+    keys:[['<leader>sf','Find a file'],['<leader>sg','Live grep'],['<leader><leader>','Switch buffer'],['Ctrl+P','Git files'],['<leader>sw','Grep the word under the cursor'],
+      ['<leader>sr','Resume the last search'],['<leader>a','Harpoon: pin this file'],['Ctrl+E','Harpoon menu'],['Ctrl+Y','Harpoon file 1'],['Ctrl+T','Harpoon file 2']],
+    drill:['Open tmux.conf with {{<leader>sf}} in under three seconds.',
+      'Pin three files with {{<leader>a}}, then hop between them with {{Ctrl+Y}}, {{Ctrl+T}} and {{Ctrl+N}}.',
+      'Grep for “leader” with {{<leader>sg}}, open a result, then bring the list back with {{<leader>sr}}.']},
+  {id:'code', day:'Day 6', app:'Neovim', title:'Code intelligence',
+    why:'`g` goes somewhere, {{K}} tells you about it, leader keys change it. Completion uses the same {{Ctrl+J}} / {{Ctrl+K}} as the Telescope list.',
+    keys:[['gd','Go to definition'],['gR','List references'],['K','Hover docs'],['<leader>rn','Rename the symbol'],['<leader>vca','Code actions'],['<leader>ld','Diagnostics for this line'],
+      ['Ctrl+J','Next completion item (insert)'],['Ctrl+Y','Accept the completion (insert)'],['<leader>f','Format the file'],['gcc','Toggle comment on the line'],['<leader>xd','Trouble: diagnostics for this file']],
+    drill:['Jump to a definition with {{gd}}, come back with `Ctrl+O`.',
+      'Rename a variable with {{<leader>rn}} and check every use changed.',
+      'Mess up the indentation of a block, then fix it with {{<leader>f}}.']},
+  {id:'git', day:'Day 7', app:'Neovim', title:'Git without leaving the file',
+    why:'Review, stage and undo hunks right in the buffer. Use fugitive for the commit itself, and the shell aliases when you are already at a prompt.',
+    keys:[[']h','Next hunk'],['[h','Previous hunk'],['<leader>gp','Preview the hunk'],['<leader>gs','Stage the hunk (again to unstage)'],['<leader>gr','Reset the hunk'],
+      ['<leader>gB','Toggle line blame'],['<leader>gd','Diff this file'],['<leader>gg','Git status (fugitive)']],
+    drill:['Change three places in a file. Walk them with {{]h}} and preview each with {{<leader>gp}}.',
+      'Stage one hunk with {{<leader>gs}} and throw another away with {{<leader>gr}}.',
+      'Open {{<leader>gg}} and commit from there with `cc`.']},
+  {id:'power', day:'Week 2', app:'Neovim', title:'Power moves',
+    why:'Once the basics run on their own, these cover the rest: structural selection, undo history, folds, and saving the whole workspace.',
+    keys:[['Ctrl+Space','Grow the selection by syntax node'],['<leader>u','Undo tree'],[']t','Next TODO comment'],['zM','Close all folds'],['zR','Open all folds'],
+      ['prefix + Ctrl+S','Save all tmux sessions','tmux'],['prefix + Ctrl+R','Restore tmux sessions','tmux'],
+      ['Alt+Shift+;','Service mode: f float, Esc reload','AeroSpace'],['Alt+Shift+Tab','Move the workspace to the next monitor','AeroSpace'],['Cmd+B → ,','Quick terminal','Ghostty']],
+    drill:['Select a whole function by pressing {{Ctrl+Space}} three or four times.',
+      'Undo past a point you saved, then get it back with {{<leader>u}}.',
+      'Float a window with {{Alt+Shift+;}} then {{f}}, and tile it again the same way.']},
+  {id:'hyper', day:'After installing Karabiner', app:'Karabiner', title:'Caps Lock: Escape and Hyper',
+    why:'Caps Lock does two jobs. Tap it for Escape, so Vim never needs a stretch. Hold it for Hyper: one letter opens an app, or holds open a layer (O apps, S system, W windows, R Raycast, V arrows) for a second letter.',
+    note:'Karabiner-Elements is not installed, so none of these fire yet. Install it with `brew install --cask karabiner-elements`, allow its permissions, then do this lesson. Hyper+B, Hyper+F, Hyper+1 and Hyper+2 also block layer keys; see Collisions.',
+    keys:[['Caps Lock','Tap: Escape'],['Hyper+T','Open Ghostty'],['Hyper+O → M','Open Obsidian'],['Hyper+O → V','Open VS Code'],
+      ['Hyper+S → L','Lock the screen'],['Hyper+S → U','Volume up'],['Hyper+R → H','Clipboard history (Raycast)'],['Hyper+V → H','Arrow left (h j k l are arrows)'],['Hyper+W → H','Window to the left half']],
+    drill:['Leave insert mode with a Caps Lock tap ten times in a row.',
+      'Open Obsidian with {{Hyper+O → M}}: hold Caps, hold O, tap M.',
+      'Paste something you copied two copies ago with {{Hyper+R → H}}.']},
+];
+
+/* RULES: points to follow, shown above the cheatsheet table. */
+const RULES = [
+  ['One modifier per layer','{{Alt}} belongs to AeroSpace and never reaches an app. {{Ctrl+B}} is tmux. {{Space}} is the Neovim and Zed leader. {{Cmd}} stays with macOS, app menus and Ghostty. {{Hyper}} (hold Caps Lock) launches apps once Karabiner is installed.'],
+  ['h j k l is direction everywhere','{{Alt+H}} moves between windows, {{Ctrl+H}} between splits and panes, {{Cmd+B → H}} between Ghostty splits, {{prefix + h}} resizes a pane. {{Alt+Shift+H}} moves the window itself.'],
+  ['Ctrl+H/J/K/L crosses Neovim and tmux','One key moves between Neovim splits and tmux panes, so you never think about which is which. Zed uses the same keys for its panes.'],
+  ['Split in tmux, not in Ghostty','{{prefix + |}} side by side, {{prefix + -}} top and bottom. tmux panes outlive the window, and resurrect can save them.'],
+  ['Leader keys are namespaces','After {{<leader>}}: `s` search and splits · `g` git · `l` LSP and diagnostics · `x` Trouble · `t` tabs · `f` format and file. Pick the kind of thing first; the letter follows.'],
+  ['One way into a project','{{Ctrl+F}} at the prompt or in Neovim, or {{prefix + f}} (a popup), runs tmux-sessionizer: pick a folder, land in its session. {{prefix + o}} switches sessions.'],
+  ['Escape without reaching','{{jj}} in Vim and zsh insert mode, {{Ctrl+C}} in Neovim. A Caps Lock tap joins them once Karabiner is installed.'],
+  ['Clear with Cmd+K','{{Cmd+K}} clears in Ghostty, inside tmux too. Cmd+L and Ctrl+L inside tmux move to the right pane instead.'],
+  ['Search here before you bind','Avoid Alt (AeroSpace takes it), root Ctrl+H/J/K/L (pane moves) and short leader maps that start longer ones (Neovim then waits 300 ms).'],
+];
+
+(() => {
+  const $ = s => document.querySelector(s);
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const md = s => esc(s).replace(/`([^`]+)`/g, '<code>$1</code>');
+  const kbd = k => k.split(' → ').map(s => `<kbd>${esc(s)}</kbd>`).join('<span class="then" aria-hidden="true">→</span>');
+  const fmt = s => s.split(/(\{\{[^}]+\}\}|`[^`]+`)/).map(p =>
+    p.startsWith('{{') ? kbd(p.slice(2, -2)) : p.startsWith('`') ? `<code>${esc(p.slice(1, -1))}</code>` : esc(p)).join('');
+  const smooth = () => matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+  const compact = s => s.toLowerCase().replace(/[\s+]/g, '');
+  const appOrder = Object.keys(APPS);
+
+  const rows = SHORTCUTS.map((r, i) => {
+    const [key, app, ctx, act, src, flags = ''] = r;
+    const f = flags.split(/\s+/).filter(Boolean);
+    const meta = APPS[app] || {scope:'app', hue:'muted'};
+    const path = SRC[src] || src;
+    return {i, key, app, ctx, act, src:path, short:path.split('/').pop(), scope:meta.scope, hue:meta.hue,
+      q:f.includes('q'), dead:f.includes('dead'), off:f.includes('off') || !!meta.inactive, inactive:meta.inactive, bug:f.includes('bug'),
+      clash:(f.find(x => x.startsWith('c:')) || '').slice(2),
+      hay:(key + ' ' + app + ' ' + ctx + ' ' + act + ' ' + path).toLowerCase(), ck:compact(key)};
+  });
+
+  /* summary */
+  const sevCount = s => COLLISIONS.filter(c => c.sev === s).length;
+  const appsUsed = appOrder.filter(a => rows.some(r => r.app === a));
+  const liveClash = COLLISIONS.filter(c => !c.latent);
+  $('#summary').innerHTML = `<b>${rows.length}</b> shortcuts across <b>${appsUsed.length}</b> apps · <b>${LESSONS.length}</b> lessons · ` +
+    `<b>${liveClash.length}</b> live collisions, <b>${liveClash.filter(c => c.sev === 'high').length}</b> high (+${COLLISIONS.length - liveClash.length} latent)`;
+
+  /* ---------- table ---------- */
+  const state = {q:'', scope:'all', apps:new Set(), hideDead:false, ess:false, sort:null, dir:1};
+  const COLS = [['key','Key'],['app','App'],['ctx','Context'],['act','Action'],['src','Source']];
+  const thead = $('#thead'), tbody = $('#tbody'), qEl = $('#q');
+
+  function drawHead(){
+    thead.innerHTML = COLS.map(([k, label]) => {
+      const on = state.sort === k;
+      const aria = on ? ` aria-sort="${state.dir > 0 ? 'ascending' : 'descending'}"` : '';
+      const ar = on ? `<span class="ar" aria-hidden="true">${state.dir > 0 ? '▲' : '▼'}</span>` : '';
+      return `<th scope="col"${aria}><button type="button" data-sort="${k}">${label}${ar}</button></th>`;
+    }).join('');
+  }
+  thead.addEventListener('click', e => {
+    const b = e.target.closest('button[data-sort]'); if (!b) return;
+    const k = b.dataset.sort;
+    if (state.sort === k) state.dir = -state.dir; else { state.sort = k; state.dir = 1; }
+    drawHead(); drawRows();
+  });
+
+  function filtered(){
+    const q = state.q.trim().toLowerCase();
+    const toks = q.split(/\s+/).filter(Boolean), cq = compact(q);
+    let list = rows.filter(r =>
+      (state.scope === 'all' || r.scope === state.scope) &&
+      (!state.apps.size || state.apps.has(r.app)) &&
+      (!state.hideDead || !(r.dead || r.off)) && (!state.ess || r.q) &&
+      (!q || toks.every(t => r.hay.includes(t)) || (cq && r.ck.includes(cq))));
+    if (state.sort){
+      const k = state.sort;
+      list = list.slice().sort((a, b) => (a[k].localeCompare(b[k], undefined, {numeric:true, sensitivity:'base'}) || a.i - b.i) * state.dir);
+    }
+    return list;
+  }
+  function rowHTML(r){
+    const b = [];
+    if (r.dead) b.push('<span class="badge b-dead" title="Another binding takes this key first">shadowed</span>');
+    if (r.off) b.push(r.inactive ? `<span class="badge b-off" title="${esc(r.inactive)}">inactive</span>` : '<span class="badge b-off">disabled</span>');
+    if (r.bug) b.push('<span class="badge b-bug">broken</span>');
+    if (r.clash) b.push(`<a class="badge b-clash" href="#c-${r.clash}">collision</a>`);
+    return `<tr${r.dead ? ' class="is-dead"' : r.off ? ' class="is-off"' : ''}><td class="k">${kbd(r.key)}</td>` +
+      `<td class="app"><span class="dot h-${r.hue}"></span>${esc(r.app)}</td><td class="ctx">${esc(r.ctx)}</td>` +
+      `<td class="act">${esc(r.act)}${b.join('')}</td><td class="src" title="${esc(r.src)}">${esc(r.short)}</td></tr>`;
+  }
+  function drawRows(){
+    const list = filtered();
+    tbody.innerHTML = list.length ? list.map(rowHTML).join('')
+      : `<tr><td class="empty" colspan="5">No shortcut matches “${esc(state.q)}” with these filters. Try fewer words or reset the filters.</td></tr>`;
+    $('#count').innerHTML = `Showing <b>${list.length}</b> of ${rows.length}`;
+  }
+  tbody.addEventListener('click', e => {
+    if (e.target.closest('.b-clash')) { state.sev = 'all'; drawSev(); drawClashes(); }
+  });
+
+  /* chips */
+  const scopeEl = $('#scopeChips'), appEl = $('#appChips');
+  const SCOPES = [['all','All'],['global','Global (OS-level)'],['app','In-app']];
+  function drawScope(){
+    scopeEl.querySelectorAll('.chip').forEach(n => n.remove());
+    SCOPES.forEach(([v, label]) => {
+      const n = v === 'all' ? rows.length : rows.filter(r => r.scope === v).length;
+      scopeEl.insertAdjacentHTML('beforeend', `<button type="button" class="chip" data-scope="${v}" aria-pressed="${state.scope === v}">${label}<span class="n">${n}</span></button>`);
+    });
+  }
+  function drawApps(){
+    appEl.querySelectorAll('.chip').forEach(n => n.remove());
+    appsUsed.forEach(a => {
+      const n = rows.filter(r => r.app === a).length;
+      appEl.insertAdjacentHTML('beforeend', `<button type="button" class="chip" data-app="${esc(a)}" aria-pressed="${state.apps.has(a)}"><span class="dot h-${APPS[a].hue}"></span>${esc(a)}${APPS[a].inactive ? ' (inactive)' : ''}<span class="n">${n}</span></button>`);
+    });
+  }
+  scopeEl.addEventListener('click', e => {
+    const b = e.target.closest('[data-scope]'); if (!b) return;
+    state.scope = b.dataset.scope; drawScope(); drawRows();
+  });
+  appEl.addEventListener('click', e => {
+    const b = e.target.closest('[data-app]'); if (!b) return;
+    const a = b.dataset.app; state.apps.has(a) ? state.apps.delete(a) : state.apps.add(a);
+    drawApps(); drawRows();
+  });
+  qEl.addEventListener('input', () => { state.q = qEl.value; drawRows(); });
+  qEl.addEventListener('keydown', e => { if (e.key === 'Escape') { qEl.value = ''; state.q = ''; drawRows(); qEl.blur(); } });
+  $('#hideDead').addEventListener('change', e => { state.hideDead = e.target.checked; drawRows(); });
+  $('#essOnly').addEventListener('change', e => { state.ess = e.target.checked; drawRows(); });
+  function resetFilters(){
+    state.q = ''; qEl.value = ''; state.scope = 'all'; state.apps.clear(); state.hideDead = false; state.ess = false; state.sort = null; state.dir = 1;
+    $('#hideDead').checked = false; $('#essOnly').checked = false; drawScope(); drawApps(); drawHead(); drawRows();
+  }
+  $('#reset').addEventListener('click', resetFilters);
+  document.addEventListener('keydown', e => {
+    if (e.key !== '/' || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.target.closest && e.target.closest('input, textarea, select, [contenteditable="true"]')) return;
+    e.preventDefault(); qEl.focus(); qEl.select();
+  });
+
+  /* ---------- collisions ---------- */
+  state.sev = 'all';
+  const sevEl = $('#sevChips'), clashEl = $('#clashList');
+  const SEVS = [['all','All'],['high','High'],['medium','Medium'],['low','Low']];
+  function drawSev(){
+    sevEl.querySelectorAll('.chip').forEach(n => n.remove());
+    SEVS.forEach(([v, label]) => {
+      const n = v === 'all' ? COLLISIONS.length : sevCount(v);
+      sevEl.insertAdjacentHTML('beforeend', `<button type="button" class="chip" data-sev="${v}" aria-pressed="${state.sev === v}">${label}<span class="n">${n}</span></button>`);
+    });
+  }
+  function drawClashes(){
+    const order = {high:0, medium:1, low:2};
+    const list = COLLISIONS.filter(c => state.sev === 'all' || c.sev === state.sev).sort((a, b) => (!!a.latent - !!b.latent) || order[a.sev] - order[b.sev]);
+    clashEl.innerHTML = list.map(c => {
+      const items = c.items.map(([app, ctx, act, src], i) => {
+        const tag = c.win < 0 ? '<span class="tag wait">waits</span>' : i === c.win ? '<span class="tag win">wins</span>' : '<span class="tag lose">loses</span>';
+        const hue = (APPS[app.replace(/ \(.*\)$/, '')] || {hue:'muted'}).hue;
+        return `<li>${tag}<div><span class="app"><span class="dot h-${hue}"></span>${esc(app)}</span> <span class="c">· ${esc(ctx)}</span><br>${esc(act)} <span class="s">${esc(src)}</span></div></li>`;
+      }).join('');
+      const keys = c.keys.map(k => `<button type="button" class="keylink" data-k="${esc(k)}" title="Find ${esc(k)} in the table">${kbd(k)}</button>`).join('');
+      return `<article class="clash" id="c-${c.id}">
+        <div><span class="sev sev-${c.sev}">${c.sev}</span>${c.latent ? ' <span class="sev sev-latent" title="Karabiner-Elements is not installed">latent</span>' : ''}<h3>${esc(c.title)}</h3><div class="keys">${keys}</div></div>
+        <div><ul class="who">${items}</ul><p class="why">${c.latent ? 'Nothing fires today because Karabiner-Elements is not installed; this bites once it is. ' : ''}${md(c.why)}</p><p class="fix"><b>Fix</b>${md(c.fix)}</p></div>
+      </article>`;
+    }).join('');
+  }
+  sevEl.addEventListener('click', e => {
+    const b = e.target.closest('[data-sev]'); if (!b) return;
+    state.sev = b.dataset.sev; drawSev(); drawClashes();
+  });
+  clashEl.addEventListener('click', e => {
+    const b = e.target.closest('.keylink'); if (!b) return;
+    resetFilters(); qEl.value = b.dataset.k; state.q = b.dataset.k; drawRows();
+    $('#cheatsheet').scrollIntoView({behavior: smooth()});
+  });
+  $('#harmCount').textContent = `(${HARMLESS.length}, harmless)`;
+  $('#harmList').innerHTML = HARMLESS.map(([k, t]) => `<dt>${kbd(k)}</dt><dd>${esc(t)}</dd>`).join('');
+
+  /* ---------- points to follow ---------- */
+  $('#rulesCount').textContent = `(${RULES.length})`;
+  $('#rules').innerHTML = RULES.map(([t, b]) => `<li><b>${esc(t)}</b>${fmt(b)}</li>`).join('');
+
+  /* ---------- tutorial ---------- */
+  const store = {
+    get(k, d){ try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+    set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+  };
+  let done = store.get('keymap-done', {}), misses = store.get('keymap-misses', {});
+  const hueOf = app => (APPS[app] || {hue:'muted'}).hue;
+  const itemsOf = l => l.keys.map(([k, a, app = l.app]) => ({id:`${app}|${k}|${a}`, k, a, app, meta:`${app} · ${l.title}`}));
+  const lessonsEl = $('#lessons');
+
+  $('#stack').innerHTML = LAYERS.map(([app, mod, job], n) =>
+    `<li><span class="ix">${n + 1}</span><span class="nm"><span class="dot h-${hueOf(app)}"></span>${esc(app)}</span><span class="md">${fmt(mod)}</span><span class="jb">${esc(job)}</span></li>`).join('');
+
+  function drawLessons(){
+    const first = LESSONS.find(l => !done[l.id]);
+    lessonsEl.innerHTML = LESSONS.map((l, n) => `<li class="lesson${done[l.id] ? ' is-done' : ''}" id="l-${l.id}"><details${l === first ? ' open' : ''}>
+      <summary><span class="num">${String(n + 1).padStart(2, '0')}</span><span class="tt"><span class="day">${esc(l.day)} · ${esc(l.app)}</span>${esc(l.title)}</span><span class="tag win" data-state="${l.id}"${done[l.id] ? '' : ' hidden'}>done</span></summary>
+      <div class="body">
+        <p class="lwhy">${fmt(l.why)}</p>
+        ${l.note ? `<p class="note">${fmt(l.note)}</p>` : ''}
+        <dl class="lkeys">${itemsOf(l).map(i => `<dt>${kbd(i.k)}</dt><dd>${esc(i.a)}${i.app !== l.app ? ` · ${esc(i.app)}` : ''}</dd>`).join('')}</dl>
+        <h4>Drill</h4><ol class="drill">${l.drill.map(d => `<li>${fmt(d)}</li>`).join('')}</ol>
+        <div class="lfoot"><label class="toggle"><input type="checkbox" data-done="${l.id}"${done[l.id] ? ' checked' : ''}> Mark as done</label>
+          <button class="btn" type="button" data-quiz="${l.id}">Quiz this lesson</button><span class="miss" data-miss="${l.id}"></span></div>
+      </div></details></li>`).join('');
+  }
+  function drawProgress(){
+    const n = LESSONS.filter(l => done[l.id]).length;
+    $('#progBar').style.width = `${100 * n / LESSONS.length}%`;
+    $('#progTxt').innerHTML = n === LESSONS.length ? `<b>All ${n}</b> lessons done. Keep the recall drill going.` : `<b>${n}</b> of ${LESSONS.length} lessons done`;
+    LESSONS.forEach(l => {
+      const c = itemsOf(l).filter(i => misses[i.id]).length;
+      lessonsEl.querySelector(`[data-miss="${l.id}"]`).textContent = c ? `${c} key${c > 1 ? 's' : ''} to review` : '';
+    });
+  }
+  lessonsEl.addEventListener('change', e => {
+    const id = e.target.dataset.done; if (!id) return;
+    if (e.target.checked) done[id] = true; else delete done[id];
+    store.set('keymap-done', done);
+    $('#l-' + id).classList.toggle('is-done', e.target.checked);
+    lessonsEl.querySelector(`[data-state="${id}"]`).hidden = !e.target.checked;
+    drawProgress();
+  });
+  lessonsEl.addEventListener('click', e => {
+    const b = e.target.closest('[data-quiz]'); if (!b) return;
+    deck.value = b.dataset.quiz; startDeck();
+    flash.scrollIntoView({behavior: smooth(), block: 'nearest'}); revealBtn.focus({preventScroll: true});
+  });
+  const resetBtn = $('#progReset'); let armed = 0;
+  resetBtn.addEventListener('click', () => {
+    if (!armed){
+      resetBtn.textContent = 'Click again to clear all progress';
+      armed = setTimeout(() => { armed = 0; resetBtn.textContent = 'Reset progress'; }, 4000); return;
+    }
+    clearTimeout(armed); armed = 0; resetBtn.textContent = 'Reset progress';
+    done = {}; misses = {}; store.set('keymap-done', done); store.set('keymap-misses', misses);
+    drawLessons(); drawProgress(); drawDeck(); startDeck();
+  });
+
+  /* recall drill */
+  const flash = $('#flash'), deck = $('#deck'), dir = $('#dir'), promptEl = $('#prompt'), answerEl = $('#answer');
+  const revealBtn = $('#reveal'), gotBtn = $('#got'), missBtn = $('#missed'), skipBtn = $('#next');
+  const liveRows = rows.filter(r => !r.dead && !r.off);
+  function drawDeck(){
+    const keep = deck.value;
+    deck.innerHTML = LESSONS.map((l, n) => `<option value="${l.id}">Lesson ${n + 1} · ${esc(l.title)}</option>`).join('') +
+      `<option value="missed">Keys you missed (${Object.keys(misses).length})</option><option value="all">Every live binding (${liveRows.length})</option>`;
+    deck.value = keep || (LESSONS.find(l => !done[l.id]) || LESSONS[0]).id;
+  }
+  function pool(){
+    if (deck.value === 'all') return liveRows.map(r => ({id:`${r.app}|${r.key}|${r.act}`, k:r.key, a:r.act, app:r.app, meta:`${r.app} · ${r.ctx}`}));
+    if (deck.value === 'missed') return Object.entries(misses).map(([id, m]) => ({...m, id}));
+    return itemsOf(LESSONS.find(l => l.id === deck.value));
+  }
+  const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  let queue = [], card = null, score = {right:0, missed:0};
+  function startDeck(){ queue = shuffle(pool()); score = {right:0, missed:0}; nextCard(); }
+  function setBtns(s){ revealBtn.hidden = s !== 'ask'; gotBtn.hidden = missBtn.hidden = s !== 'shown'; skipBtn.textContent = s === 'end' ? 'Start again' : 'Skip'; }
+  function nextCard(){
+    card = queue.pop() || null; answerEl.hidden = true;
+    if (!card){
+      const tot = score.right + score.missed;
+      promptEl.innerHTML = tot
+        ? `<span class="big">Round done: ${score.right} of ${tot} right</span><span class="m">${score.missed ? 'Misses wait in “Keys you missed”. Run that deck again tomorrow.' : 'Clean round. Mark the lesson done and move on.'}</span>`
+        : '<span class="big">Nothing to quiz here yet</span><span class="m">Keys you miss in a quiz land in this deck.</span>';
+      setBtns('end');
+    } else {
+      const a2k = dir.value === 'a2k';
+      promptEl.innerHTML = `<span class="big">${a2k ? esc(card.a) : kbd(card.k)}</span><span class="m"><span class="dot h-${hueOf(card.app)}"></span>${esc(card.meta)}</span>`;
+      answerEl.innerHTML = `<span>${a2k ? kbd(card.k) : esc(card.a)}</span>`;
+      setBtns('ask');
+    }
+    $('#tally').textContent = `${score.right} right · ${score.missed} missed · ${queue.length + (card ? 1 : 0)} left`;
+  }
+  function answer(ok){
+    const m = misses[card.id];
+    if (ok){ score.right++; if (m && --m.n <= 0) delete misses[card.id]; }
+    else { score.missed++; misses[card.id] = {k:card.k, a:card.a, app:card.app, meta:card.meta, n:(m ? m.n : 0) + 1}; }
+    store.set('keymap-misses', misses); drawProgress(); drawDeck(); nextCard();
+    (revealBtn.hidden ? skipBtn : revealBtn).focus();
+  }
+  revealBtn.addEventListener('click', () => { answerEl.hidden = false; setBtns('shown'); gotBtn.focus(); });
+  gotBtn.addEventListener('click', () => answer(true));
+  missBtn.addEventListener('click', () => answer(false));
+  skipBtn.addEventListener('click', () => card ? nextCard() : startDeck());
+  deck.addEventListener('change', startDeck);
+  dir.addEventListener('change', () => { if (card) queue.push(card); nextCard(); });
+
+  /* ---------- theme ---------- */
+  const root = document.documentElement, mq = matchMedia('(prefers-color-scheme: dark)'), themeBtn = $('#theme');
+  const effective = () => root.dataset.theme || (mq.matches ? 'dark' : 'light');
+  const paintTheme = () => { themeBtn.textContent = effective() === 'dark' ? '◐ Light theme' : '◑ Dark theme'; };
+  try { const t = localStorage.getItem('keymap-theme'); if (t === 'dark' || t === 'light') root.dataset.theme = t; } catch (e) {}
+  themeBtn.addEventListener('click', () => {
+    const t = effective() === 'dark' ? 'light' : 'dark';
+    root.dataset.theme = t; try { localStorage.setItem('keymap-theme', t); } catch (e) {}
+    paintTheme();
+  });
+  if (mq.addEventListener) mq.addEventListener('change', paintTheme);
+  new MutationObserver(paintTheme).observe(root, {attributes:true, attributeFilter:['data-theme']});
+
+  /* ---------- print: open every fold ---------- */
+  let opened = [];
+  addEventListener('beforeprint', () => { opened = [...document.querySelectorAll('details')].map(d => [d, d.open]); opened.forEach(([d]) => { d.open = true; }); });
+  addEventListener('afterprint', () => { opened.forEach(([d, o]) => { d.open = o; }); });
+
+  drawScope(); drawApps(); drawHead(); drawRows(); drawSev(); drawClashes();
+  drawLessons(); drawProgress(); drawDeck(); startDeck(); paintTheme();
+})();
+</script>
+</body>
+</html>
