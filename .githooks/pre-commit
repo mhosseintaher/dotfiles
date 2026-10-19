@@ -1,0 +1,126 @@
+#!/bin/sh
+# Secret guard for this PUBLIC repo. Enabled with:
+#   git config core.hooksPath .githooks
+#
+# 1. Secrets: gitleaks when installed, else a grep fallback over the staged diff
+#    (private keys and common token prefixes).
+# 2. IPv4 literals in added lines (gitleaks does not check these). Loopback,
+#    0.0.0.0, RFC 1918 private, link-local, documentation ranges and netmasks
+#    are allowed, and so are the well-known public DNS resolvers
+#    (8.8.8.8 8.8.4.4 1.1.1.1 1.0.0.1 4.2.2.4 4.2.2.2 9.9.9.9); any other
+#    address is treated as infrastructure detail.
+# 3. Staged binary files: each blob is grepped for the same secret patterns
+#    (neither the diff nor gitleaks sees inside them).
+#
+# A false positive: append "gitleaks:allow" to that line (gitleaks honours it
+# too), or bypass once with `git commit --no-verify`.
+
+fail=0
+
+# "file<TAB>line<TAB>content" for every added line in the staged diff.
+# "+++ " is a file header only between "diff --git" and the first "@@", so an
+# added line that starts with "++ " is still scanned. Names with spaces get a
+# trailing tab from git and names with odd bytes come quoted: both stripped.
+added_lines() {
+	git -c core.quotePath=false diff --cached -U0 --no-color --src-prefix=a/ --dst-prefix=b/ --diff-filter=ACMR |
+		awk '
+		/^diff --git / { hdr = 1; next }
+		hdr && /^\+\+\+ / {
+			f = substr($0, 5); sub(/\t$/, "", f)
+			if (f ~ /^".*"$/) f = substr(f, 2, length(f) - 2)
+			sub(/^b\//, "", f); next
+		}
+		/^@@ /        { hdr = 0; match($0, /\+[0-9]+/); n = substr($0, RSTART + 1, RLENGTH - 1) + 0; next }
+		!hdr && /^\+/ { if (index($0, "gitleaks:allow") == 0) print f "\t" n "\t" substr($0, 2); n++ }
+		'
+}
+
+# staged binary files (numstat "-<TAB>-"), one path per line; for a rename the new path
+binary_paths() {
+	git diff --cached --numstat --diff-filter=ACMR -z | tr '\0' '\n' |
+		awk '
+		want == 2 { want = 1; next }
+		want == 1 { if (bin) print; want = 0; next }
+		{
+			bin = ($0 ~ /^-\t-\t/); p = $0; sub(/^[^\t]*\t[^\t]*\t/, "", p)
+			if (p == "") want = 2; else if (bin) print p
+		}
+		'
+}
+
+# private keys and common token prefixes; extra grep options (e.g. -q) go first
+secret_grep() {
+	LC_ALL=C grep -aE "$@" \
+		-e '-----BEGIN [A-Z ]*PRIVATE KEY' \
+		-e '(^|[^A-Za-z0-9_])gh[pousr]_[A-Za-z0-9]{30,}' \
+		-e 'github_pat_[A-Za-z0-9_]{20,}' \
+		-e 'glpat-[A-Za-z0-9_-]{20,}' \
+		-e '(^|[^A-Za-z0-9_-])sk-[A-Za-z0-9_-]{20,}' \
+		-e 'xox[abeoprs]-[A-Za-z0-9-]{10,}' \
+		-e 'AKIA[0-9A-Z]{16}' \
+		-e 'AIza[0-9A-Za-z_-]{35}'
+}
+
+if command -v gitleaks >/dev/null 2>&1; then
+	if ! gitleaks protect --staged --redact; then
+		echo "pre-commit: gitleaks found secrets in the staged changes (see above)." >&2
+		fail=1
+	fi
+else
+	hits=$(added_lines | secret_grep | cut -f1,2 | tr '\t' ':')
+	if [ -n "$hits" ]; then
+		echo "pre-commit: possible secret (private key or API token) in staged lines:" >&2
+		printf '%s\n' "$hits" | sed 's/^/  /' >&2
+		fail=1
+	fi
+fi
+
+bins=$(binary_paths | while IFS= read -r p; do
+	git cat-file blob ":$p" | secret_grep -q && printf '%s\n' "$p"
+done)
+if [ -n "$bins" ]; then
+	echo "pre-commit: possible secret (private key or API token) in staged binary files:" >&2
+	printf '%s\n' "$bins" | sed 's/^/  /' >&2
+	fail=1
+fi
+
+ips=$(added_lines | awk -F '\t' '
+function allowed(a, b) {
+	if (a == 127 || a == 10 || a == 0 || a == 255) return 1
+	if (a == 172 && b >= 16 && b <= 31) return 1
+	if (a == 192 && b == 168) return 1
+	if (a == 169 && b == 254) return 1
+	return 0
+}
+function docrange(a, b, c) {
+	return (a == 192 && b == 0 && c == 2) || (a == 198 && b == 51 && c == 100) || (a == 203 && b == 0 && c == 113)
+}
+function resolver(ip) {
+	return index(" 8.8.8.8 8.8.4.4 1.1.1.1 1.0.0.1 4.2.2.4 4.2.2.2 9.9.9.9 ", " " ip " ") > 0
+}
+{
+	s = $0; sub(/^[^\t]*\t[^\t]*\t/, "", s)
+	while (match(s, /[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/)) {
+		ip = substr(s, RSTART, RLENGTH)
+		pre = (RSTART > 1) ? substr(s, RSTART - 1, 1) : ""
+		post = substr(s, RSTART + RLENGTH, 1)
+		s = substr(s, RSTART + RLENGTH)
+		if (pre ~ /[0-9.]/ || post ~ /[0-9]/ || (post == "." && s ~ /^\.[0-9]/)) continue
+		split(ip, o, ".")
+		if (o[1] > 255 || o[2] > 255 || o[3] > 255 || o[4] > 255) continue
+		if (allowed(o[1] + 0, o[2] + 0) || docrange(o[1] + 0, o[2] + 0, o[3] + 0)) continue
+		if (resolver((o[1] + 0) "." (o[2] + 0) "." (o[3] + 0) "." (o[4] + 0))) continue
+		print $1 ":" $2
+	}
+}' | sort -u)
+if [ -n "$ips" ]; then
+	echo "pre-commit: public IPv4 address in staged lines (infrastructure detail in a PUBLIC repo):" >&2
+	printf '%s\n' "$ips" | sed 's/^/  /' >&2
+	fail=1
+fi
+
+if [ "$fail" -ne 0 ]; then
+	echo "Commit blocked. Remove the value (keep it in an untracked file), mark a false positive with gitleaks:allow, or use --no-verify." >&2
+	exit 1
+fi
+exit 0

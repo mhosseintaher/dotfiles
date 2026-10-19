@@ -1,1 +1,19 @@
+# tmux plugins (installed by tpm)
 tmux/.config/tmux/.tmux/plugins/*
+
+# OS / editor junk
+.DS_Store
+**/NetrwTreeListing
+
+# Zed runtime state (prompt library LMDB, chat history)
+zed/.config/zed/prompts/
+zed/.config/zed/conversations/
+
+# Dependencies, env files, logs
+node_modules/
+.env
+.env.*
+*.log
+
+# Commercial font (Fontiran Dana): never publish; install it locally
+home/**/dana-*.woff2
