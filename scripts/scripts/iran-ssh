@@ -1,0 +1,162 @@
+#!/usr/bin/env bash
+# iran-ssh — SSH to the hosts you list (your Iranian servers) leaves straight out of
+# the physical network (Wi-Fi/Ethernet), outside the VPN; every other ssh (GitHub,
+# foreign servers) and the rest of the Mac stay on the VPN. No sudo, no routes: the
+# ssh socket is bound to the interface (nc -b).
+#
+#   iran-ssh up          turn it on   (writes the Include at the END of ~/.ssh/config)
+#   iran-ssh down        turn it off  (removes the Include, wherever it is)
+#   iran-ssh status      on/off, listed hosts, interface and its local address
+#   iran-ssh status -v   the same plus the public IP ssh uses (asks api.ipify.org)
+#
+# Host data never lives in this public repo. It is read from
+# ~/.config/iran-ssh/hosts.conf (dir 700, file 600), for example:
+#
+#   # hosts that bypass the VPN: ssh pattern list, commas, no spaces
+#   hosts my-server,my-jump,*.ir,203.0.113.10
+#   # every other line is copied into the ssh config while the mode is ON
+#   Host my-server 203.0.113.10
+#     ProxyJump my-jump
+#
+# How: `up` writes ~/.ssh/iran-ssh.conf from that file and appends
+# `Include ~/.ssh/iran-ssh.conf` as the last block of ~/.ssh/config, so a per-host
+# ProxyJump/ProxyCommand above it still wins. Each connection looks up the current
+# physical interface, so switching Wi-Fi/Ethernet needs no re-run; with no physical
+# network the listed hosts follow the VPN too.
+#
+# iran-ssh:up, :down and :status are symlinks to this file. A ':' in a file name
+# breaks on Windows/NTFS/exFAT checkouts, and scp/rsync read it as host:path.
+
+set -euo pipefail
+umask 077
+
+CONF="$HOME/.ssh/iran-ssh.conf"
+SSH_CONFIG="$HOME/.ssh/config"
+HOSTS_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/iran-ssh/hosts.conf"
+INCLUDE_LINE='Include ~/.ssh/iran-ssh.conf'
+BEGIN_MARK='# >>> iran-ssh: keep this block last (written by iran-ssh up) >>>'
+END_MARK='# <<< iran-ssh <<<'
+HOSTS_RE='^[A-Za-z0-9.*?!,:_-]+$'
+SELF="$(cd "$(dirname "$0")" && pwd)/iran-ssh"
+
+die() { printf 'iran-ssh: %s\n' "$*" >&2; exit 1; }
+usage() { awk 'NR == 1 { next } /^#/ { sub(/^# ?/, ""); print; next } { exit }' "$0"; }
+
+# the physical default route's interface: first `default` with a real gateway that is not a tunnel/bridge
+physical_iface() {
+  netstat -rn -f inet | awk '!found && $1 == "default" && $2 ~ /^[0-9.]+$/ && $NF !~ /^(utun|ipsec|ppp|bridge)/ { print $NF; found = 1 }'
+}
+
+# hosts.conf ends up in ssh's ProxyCommand config: only trust a private file of ours
+check_hosts_file() {
+  [[ -f $HOSTS_FILE ]] || die "missing $HOSTS_FILE (see 'iran-ssh help' for an example)"
+  [[ $(/usr/bin/stat -f '%u' "$HOSTS_FILE") == "$(id -u)" ]] || die "$HOSTS_FILE is not owned by you"
+  [[ $(/usr/bin/stat -f '%Lp' "$HOSTS_FILE") =~ ^[0-7]00$ ]] || die "$HOSTS_FILE must be private: chmod 600 it"
+}
+
+# every `hosts` line of hosts.conf, joined into one ssh pattern list
+host_list() {
+  awk '$1 == "hosts" { for (i = 2; i <= NF; i++) l = l "," $i }
+       END { gsub(/,+/, ",", l); sub(/^,/, "", l); sub(/,$/, "", l); print l }' "$HOSTS_FILE"
+}
+
+# every other non-comment line of hosts.conf, copied as-is
+extra_config() { awk '$1 != "hosts" && !/^[[:space:]]*(#|$)/' "$HOSTS_FILE"; }
+
+# ~/.ssh/config without our Include, from either position: the old first line or
+# the marked block at the end. Drops leading and trailing blank lines.
+strip_include() {
+  awk -v inc="$INCLUDE_LINE" -v b="$BEGIN_MARK" -v e="$END_MARK" '
+    after_b && $0 == "Match all" { after_b = 0; next }
+    { after_b = ($0 == b) }
+    $0 == b || $0 == e || $0 == inc { next }
+    /^[[:space:]]*$/ { blank = blank $0 "\n"; next }
+    { if (out) printf "%s", blank; blank = ""; print; out = 1 }
+  ' "$SSH_CONFIG"
+}
+
+# rewrite ~/.ssh/config without our Include, then append $1; private and atomic
+rewrite_ssh_config() {
+  local tmp="$SSH_CONFIG.iran-ssh.tmp"
+  [[ ! -L $SSH_CONFIG ]] || die "$SSH_CONFIG is a symlink: edit the Include by hand"
+  strip_include > "$tmp"
+  printf '%s' "${1:-}" >> "$tmp"
+  chmod 600 "$tmp"
+  mv "$tmp" "$SSH_CONFIG"
+}
+
+show_status() {  # $1 = -v: also look up the public IP (sends a request to api.ipify.org)
+  local iface addr hosts
+  if [[ ! -f $CONF ]] || ! grep -qxF "$INCLUDE_LINE" "$SSH_CONFIG" 2>/dev/null; then
+    echo "iran-ssh: OFF — ssh follows the VPN"
+    [[ ${1:-} == -v ]] && echo "  public IP $(curl -s --max-time 6 https://api.ipify.org || echo '?')"
+    return 0
+  fi
+  hosts=$(awk '$1 == "Match" && $2 == "originalhost" { print $3; exit }' "$CONF")
+  echo "iran-ssh: ON — direct, outside the VPN: ${hosts:-every host (old config: run 'iran-ssh up' to apply the allowlist)}"
+  iface=$(physical_iface)
+  if [[ -n $iface ]]; then
+    addr=$(ipconfig getifaddr "$iface" 2>/dev/null || echo 'no address')
+    echo "  via $iface ($addr)"
+    [[ ${1:-} == -v ]] && echo "  public IP $(curl -s --max-time 6 --interface "$iface" https://api.ipify.org || echo '?')"
+  else
+    echo "  no physical network right now: those hosts follow the VPN too"
+  fi
+  [[ $(head -n 1 "$SSH_CONFIG") == "$INCLUDE_LINE" ]] &&
+    echo "  the Include is still line 1 of ~/.ssh/config: run 'iran-ssh up' to move it to the end"
+  return 0
+}
+
+# called as iran-ssh:up / iran-ssh:down / iran-ssh:status (symlinks beside this file)
+self=${0##*/}
+[[ $self == iran-ssh:* ]] && set -- "${self#iran-ssh:}" "$@"
+
+case ${1:-status} in
+  up)
+    check_hosts_file
+    hosts=$(host_list)
+    [[ -n $hosts ]] || die "no 'hosts' line in $HOSTS_FILE"
+    [[ $hosts =~ $HOSTS_RE ]] || die "unexpected character in the 'hosts' list of $HOSTS_FILE"
+    mkdir -p -m 700 "$HOME/.ssh"
+    touch "$SSH_CONFIG"
+    {
+      echo "# written by iran-ssh up from $HOSTS_FILE; edit that file and re-run up"
+      extra_config
+      # listed hosts connect through `iran-ssh proxy`, which binds to the physical interface
+      printf 'Match originalhost %s\n  ProxyCommand "%s" proxy %%h %%p\n' "$hosts" "$SELF"
+      printf 'Match host %s\n  ProxyCommand "%s" proxy %%h %%p\n' "$hosts" "$SELF"
+    } > "$CONF.tmp"
+    chmod 600 "$CONF.tmp"
+    mv "$CONF.tmp" "$CONF"
+    # last, inside `Match all`: an Include under the final Host block would only apply to that host
+    rewrite_ssh_config $'\n'"$BEGIN_MARK"$'\nMatch all\n'"$INCLUDE_LINE"$'\n'"$END_MARK"$'\n'
+    show_status
+    ;;
+  down)
+    rm -f "$CONF"
+    if [[ -f $SSH_CONFIG ]] && grep -qF -e "$INCLUDE_LINE" -e "$BEGIN_MARK" "$SSH_CONFIG"; then
+      rewrite_ssh_config
+    fi
+    echo "iran-ssh: OFF — ssh follows the VPN"
+    ;;
+  status)
+    show_status "${2:-}"
+    ;;
+  proxy)  # internal: the ProxyCommand `up` writes, run by ssh as `iran-ssh proxy %h %p`
+    (( $# == 3 )) || die "usage: iran-ssh proxy HOST PORT"
+    iface=$(physical_iface)
+    # Not BindInterface: that only picks the source ADDRESS, and with the VPN up macOS
+    # still routes the packets into the tunnel. `nc -b` binds the socket to the
+    # interface itself (IP_BOUND_IF), which the VPN cannot take over.
+    if [[ -n $iface ]] && ipconfig getifaddr "$iface" >/dev/null 2>&1; then
+      exec /usr/bin/nc -b "$iface" -G 10 "$2" "$3"
+    fi
+    exec /usr/bin/nc -G 10 "$2" "$3"  # no physical network: follow the VPN
+    ;;
+  help|-h|--help)
+    usage
+    ;;
+  *)
+    usage; exit 1
+    ;;
+esac
